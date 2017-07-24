@@ -18,13 +18,16 @@
 namespace com.github.zvreifnitz.JsonLib.Impl
 {
     using System;
+    using System.Threading;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     internal sealed class JsonSerializationContext : IJsonSerializationContext
     {
+        private static int IdSeed;
+
         private readonly object _lock = new object();
-        private readonly Guid _guid = Guid.NewGuid();
+        private readonly int _id = Interlocked.Increment(ref IdSeed);
         private readonly List<Action> _disposeActions = new List<Action>();
         private bool _disposed;
 
@@ -110,24 +113,24 @@ namespace com.github.zvreifnitz.JsonLib.Impl
 
         private static class JsonSerializatorCache<T>
         {
-            private static readonly ConcurrentDictionary<Guid, Wrapper<T>> Cache =
-                new ConcurrentDictionary<Guid, Wrapper<T>>();
+            private static readonly ConcurrentDictionary<int, Wrapper<T>> Cache =
+                new ConcurrentDictionary<int, Wrapper<T>>();
 
             internal static Wrapper<T> GetJsonSerializator(JsonSerializationContext context)
             {
-                return Cache.TryGetValue(context._guid, out Wrapper<T> wrapper)
+                return Cache.TryGetValue(context._id, out Wrapper<T> wrapper)
                     ? wrapper
                     : null;
             }
 
             internal static void Register(JsonSerializationContext context, IJsonMapper<T> mapper)
             {
-                Cache[context._guid] = new Wrapper<T>(context, mapper);
+                Cache[context._id] = new Wrapper<T>(context, mapper);
             }
 
             internal static void Unregister(JsonSerializationContext context)
             {
-                Cache.TryRemove(context._guid, out Wrapper<T> wrapper);
+                Cache.TryRemove(context._id, out Wrapper<T> wrapper);
             }
         }
     }

@@ -17,13 +17,7 @@
 
 namespace com.github.zvreifnitz.JsonLib.Converter
 {
-    internal interface IJsonConverter
-    {
-        bool CanSerialize { get; }
-        bool CanDeserialize { get; }
-    }
-
-    internal interface IJsonConverter<T> : IJsonConverter
+    internal interface IJsonConverter<T>
     {
         void ToJson(IJsonSerializators context, IJsonWriter writer, T instance);
         void FromJson(IJsonSerializators context, IJsonReader reader, out T instance);

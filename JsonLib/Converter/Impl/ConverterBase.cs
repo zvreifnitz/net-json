@@ -21,7 +21,7 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
     using Helper;
     using Parser;
 
-    internal abstract class ConverterBase : IJsonConverter
+    internal abstract class ConverterBase
     {
         internal const string Null = JsonLiterals.Null;
         internal const string True = JsonLiterals.True;
@@ -30,10 +30,6 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
         internal static readonly CultureInfo DefaultCultureInfo = CultureInfo.InvariantCulture;
         internal static readonly NumberStyles IntegerNumberStyle = NumberStyles.Integer;
         internal static readonly NumberStyles FloatNumberStyle = NumberStyles.Float;
-
-        public bool CanSerialize => true;
-
-        public bool CanDeserialize => true;
     }
 
     internal abstract class ConverterBase<T> : ConverterBase, IJsonConverter<T>
