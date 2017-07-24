@@ -26,7 +26,7 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
             writer.WriteRaw(instance.HasValue ? instance.Value.Ticks.ToString(DefaultCultureInfo) : Null);
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, ref TimeSpan? instance)
+        public override void FromJson(IJsonSerializators context, IJsonReader reader, out TimeSpan? instance)
         {
             var token = reader.GetNextToken();
             if (token == JsonToken.Null)
@@ -40,13 +40,8 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
             }
             else
             {
-                ThrowInvalidJsonException<object>();
+                instance = ThrowInvalidJsonException<TimeSpan?>();
             }
-        }
-
-        public override TimeSpan? NewInstance()
-        {
-            return null;
         }
     }
 }

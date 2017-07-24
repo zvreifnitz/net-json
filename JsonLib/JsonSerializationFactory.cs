@@ -15,17 +15,15 @@
  *
  */
 
-namespace com.github.zvreifnitz.JsonLib.Converter
+namespace com.github.zvreifnitz.JsonLib
 {
-    internal interface IJsonConverter
-    {
-        bool CanSerialize { get; }
-        bool CanDeserialize { get; }
-    }
+    using Impl;
 
-    internal interface IJsonConverter<T> : IJsonConverter
+    public static class JsonSerializationFactory
     {
-        void ToJson(IJsonSerializators context, IJsonWriter writer, T instance);
-        void FromJson(IJsonSerializators context, IJsonReader reader, out T instance);
+        public static IJsonSerializationContext NewJsonSerializationContext()
+        {
+            return new JsonSerializationContext();
+        }
     }
 }

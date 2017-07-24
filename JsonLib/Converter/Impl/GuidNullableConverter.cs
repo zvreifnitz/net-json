@@ -18,7 +18,7 @@
 namespace com.github.zvreifnitz.JsonLib.Converter.Impl
 {
     using System;
-    
+
     internal sealed class GuidNullableConverter : ConverterBase<Guid?>
     {
         public override void ToJson(IJsonSerializators context, IJsonWriter writer, Guid? instance)
@@ -33,8 +33,9 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
             }
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, ref Guid? instance)
-        {   var token = reader.GetNextToken();
+        public override void FromJson(IJsonSerializators context, IJsonReader reader, out Guid? instance)
+        {
+            var token = reader.GetNextToken();
             if (token == JsonToken.Null)
             {
                 instance = null;
@@ -46,13 +47,8 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
             }
             else
             {
-                ThrowInvalidJsonException<object>();
+                instance = ThrowInvalidJsonException<Guid?>();
             }
-        }
-
-        public override Guid? NewInstance()
-        {
-            return null;
         }
     }
 }

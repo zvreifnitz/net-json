@@ -24,18 +24,13 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
             writer.WriteRaw(instance.ToString(DefaultCultureInfo));
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, ref ushort instance)
+        public override void FromJson(IJsonSerializators context, IJsonReader reader, out ushort instance)
         {
             if (reader.GetNextToken() != JsonToken.Number ||
                 !ushort.TryParse(reader.ReadValue(), IntegerNumberStyle, DefaultCultureInfo, out instance))
             {
-                ThrowInvalidJsonException<object>();
+                instance = ThrowInvalidJsonException<ushort>();
             }
-        }
-
-        public override ushort NewInstance()
-        {
-            return new ushort();
         }
     }
 }

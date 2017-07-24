@@ -23,7 +23,7 @@ namespace com.github.zvreifnitz.JsonLib.Parser
     using System.IO;
     using System.Text;
 
-    internal sealed class JsonReader : IJsonReader
+    internal sealed class JsonReader : IJsonReader, IDisposable
     {
         private readonly TextReader _reader;
         private readonly bool _strict;
@@ -31,7 +31,9 @@ namespace com.github.zvreifnitz.JsonLib.Parser
         private readonly StringBuilder _intermediateValue;
         private char _prevChar;
         private char _currChar;
+        private JsonToken _currToken;
         private string _currentValue;
+        private bool _moveToNextToken = true;
         private bool _moveToNextChar = true;
 
         public JsonReader(TextReader reader) : this(reader, false)
@@ -51,25 +53,48 @@ namespace com.github.zvreifnitz.JsonLib.Parser
         {
             while (true)
             {
-                if (MoveToNextChar)
+                if (MoveToNextToken)
                 {
-                    var nextCharTmp = ReadNextChar();
-                    if (nextCharTmp == null)
+                    if (MoveToNextChar)
                     {
-                        throw new JsonException("End of stream");
+                        var nextCharTmp = ReadNextChar();
+                        if (nextCharTmp == null)
+                        {
+                            if (CurrentMode == Mode.Number)
+                            {
+                                var tmp = ProcessChar_NumberMode(true);
+                                if (tmp == null)
+                                {
+                                    throw new JsonException("End of stream");
+                                }
+                                _currToken = tmp.Value;
+                                return _currToken;
+                            }
+                            throw new JsonException("End of stream");
+                        }
+                        _prevChar = _currChar;
+                        _currChar = nextCharTmp.Value;
                     }
-                    _prevChar = _currChar;
-                    _currChar = nextCharTmp.Value;
+                    var result = ProcessChar();
+                    if (result != null)
+                    {
+                        _currToken = result.Value;
+                        return _currToken;
+                    }
                 }
-                var result = ProcessChar();
-                if (result != null)
+                else
                 {
-                    return result.Value;
+                    return _currToken;
                 }
             }
         }
 
         public void RepeatLastToken()
+        {
+            _moveToNextToken = false;
+        }
+
+        private void RepeatLastChar()
         {
             _moveToNextChar = false;
         }
@@ -80,21 +105,25 @@ namespace com.github.zvreifnitz.JsonLib.Parser
             return ((nextCharInt == -1) ? (char?)null : (char)nextCharInt);
         }
 
+        public void Dispose()
+        {
+        }
+
         private JsonToken? ProcessChar()
         {
             switch (CurrentMode)
             {
-                case Mode.String: return processChar_StringMode();
-                case Mode.Boolean: return processChar_BooleanMode();
-                case Mode.Null: return processChar_NullMode();
-                case Mode.Number: return processChar_NumberMode();
-                case Mode.Object: return processChar_ObjectMode();
-                case Mode.Array: return processChar_ArrayMode();
-                default: return processChar_UnspecifiedMode();
+                case Mode.String: return ProcessChar_StringMode();
+                case Mode.Boolean: return ProcessChar_BooleanMode();
+                case Mode.Null: return ProcessChar_NullMode();
+                case Mode.Number: return ProcessChar_NumberMode(false);
+                case Mode.Object: return ProcessChar_ObjectMode();
+                case Mode.Array: return ProcessChar_ArrayMode();
+                default: return ProcessChar_UnspecifiedMode();
             }
         }
 
-        private JsonToken? processChar_ArrayMode()
+        private JsonToken? ProcessChar_ArrayMode()
         {
             _currentValue = null;
             switch (_currChar)
@@ -104,11 +133,11 @@ namespace com.github.zvreifnitz.JsonLib.Parser
                 case ']':
                     _modeStack.Pop();
                     return JsonToken.ArrayEnd;
-                default: return processChar_Default();
+                default: return ProcessChar_Default();
             }
         }
 
-        private JsonToken? processChar_ObjectMode()
+        private JsonToken? ProcessChar_ObjectMode()
         {
             _currentValue = null;
             switch (_currChar)
@@ -120,13 +149,14 @@ namespace com.github.zvreifnitz.JsonLib.Parser
                 case '}':
                     _modeStack.Pop();
                     return JsonToken.ObjectEnd;
-                default: return processChar_Default();
+                default: return ProcessChar_Default();
             }
         }
 
-        private JsonToken? processChar_NumberMode()
+        private JsonToken? ProcessChar_NumberMode(bool forceEnd)
         {
-            switch (_currChar)
+            var currentChar = forceEnd ? '!' : _currChar;
+            switch (currentChar)
             {
                 case '0':
                 case '1':
@@ -149,16 +179,20 @@ namespace com.github.zvreifnitz.JsonLib.Parser
                     _currentValue = _intermediateValue.ToString();
                     _intermediateValue.Clear();
                     _modeStack.Pop();
-                    RepeatLastToken();
+                    RepeatLastChar();
                     return JsonToken.Number;
             }
         }
 
-        private JsonToken? processChar_NullMode()
+        private JsonToken? ProcessChar_NullMode()
         {
             _currentValue = null;
             _intermediateValue.Append(_currChar);
-            if (_intermediateValue.Length != 4 || _intermediateValue.ToString() != JsonLiterals.Null)
+            if (_intermediateValue.Length < 4)
+            {
+                return null;
+            }
+            if (_intermediateValue.ToString() != JsonLiterals.Null)
             {
                 return ExceptionHelper.ThrowInvalidJsonException<JsonToken>();
             }
@@ -167,7 +201,7 @@ namespace com.github.zvreifnitz.JsonLib.Parser
             return JsonToken.Null;
         }
 
-        private JsonToken? processChar_BooleanMode()
+        private JsonToken? ProcessChar_BooleanMode()
         {
             _currentValue = null;
             _intermediateValue.Append(_currChar);
@@ -199,7 +233,7 @@ namespace com.github.zvreifnitz.JsonLib.Parser
             }
         }
 
-        private JsonToken? processChar_StringMode()
+        private JsonToken? ProcessChar_StringMode()
         {
             _intermediateValue.Append(_currChar);
             if (_currChar != JsonHelper.QuotationMark || _prevChar == JsonHelper.ReverseSolidus)
@@ -212,13 +246,13 @@ namespace com.github.zvreifnitz.JsonLib.Parser
             return JsonToken.String;
         }
 
-        private JsonToken? processChar_UnspecifiedMode()
+        private JsonToken? ProcessChar_UnspecifiedMode()
         {
             _currentValue = null;
-            return processChar_Default();
+            return ProcessChar_Default();
         }
 
-        private JsonToken? processChar_Default()
+        private JsonToken? ProcessChar_Default()
         {
             if (char.IsWhiteSpace(_currChar))
             {
@@ -267,6 +301,16 @@ namespace com.github.zvreifnitz.JsonLib.Parser
                     break;
             }
             return ExceptionHelper.ThrowInvalidJsonException<JsonToken>();
+        }
+
+        private bool MoveToNextToken
+        {
+            get
+            {
+                var result = _moveToNextToken;
+                _moveToNextToken = true;
+                return result;
+            }
         }
 
         private bool MoveToNextChar

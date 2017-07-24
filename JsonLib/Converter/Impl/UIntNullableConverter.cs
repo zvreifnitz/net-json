@@ -24,7 +24,7 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
             writer.WriteRaw(instance.HasValue ? instance.Value.ToString(DefaultCultureInfo) : Null);
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, ref uint? instance)
+        public override void FromJson(IJsonSerializators context, IJsonReader reader, out uint? instance)
         {
             var token = reader.GetNextToken();
             if (token == JsonToken.Null)
@@ -38,13 +38,8 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
             }
             else
             {
-                ThrowInvalidJsonException<object>();
+                instance = ThrowInvalidJsonException<uint?>();
             }
-        }
-
-        public override uint? NewInstance()
-        {
-            return null;
         }
     }
 }

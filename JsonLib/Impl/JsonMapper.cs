@@ -47,25 +47,18 @@ namespace com.github.zvreifnitz.JsonLib.Impl
 
         public T FromJson(IJsonSerializators context, IJsonReader reader)
         {
-            var token = reader.GetNextToken();
-            if (token == JsonToken.Null)
-            {
-                return default(T);
-            }
             if (CanDeserialize)
             {
-                reader.RepeatLastToken();
-                var result = _converter.NewInstance();
-                _converter.FromJson(context, reader, ref result);
+                _converter.FromJson(context, reader, out T result);
                 return result;
             }
-            switch (token)
+            switch (reader.GetNextToken())
             {
                 case JsonToken.ArrayStart:
-                    ReadUntil(reader, JsonToken.ArrayEnd);
+                    ReadUntil(reader, JsonToken.ArrayStart, JsonToken.ArrayEnd);
                     return default(T);
                 case JsonToken.ObjectStart:
-                    ReadUntil(reader, JsonToken.ObjectEnd);
+                    ReadUntil(reader, JsonToken.ObjectStart, JsonToken.ObjectEnd);
                     return default(T);
                 case JsonToken.False:
                 case JsonToken.True:
@@ -77,9 +70,21 @@ namespace com.github.zvreifnitz.JsonLib.Impl
             }
         }
 
-        private static void ReadUntil(IJsonReader reader, JsonToken token)
+        private static void ReadUntil(IJsonReader reader, JsonToken upToken, JsonToken downToken)
         {
-            while (reader.GetNextToken() != token) ;
+            int count = 1;
+            while (count > 0)
+            {
+                var token = reader.GetNextToken();
+                if (token == downToken)
+                {
+                    count--;
+                }
+                else if (token == upToken)
+                {
+                    count++;
+                }
+            }
         }
     }
 }

@@ -26,7 +26,7 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
             writer.WriteRaw(instance.HasValue ? instance.Value.ToString(DefaultCultureInfo) : Null);
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, ref BigInteger? instance)
+        public override void FromJson(IJsonSerializators context, IJsonReader reader, out BigInteger? instance)
         {
             var token = reader.GetNextToken();
             if (token == JsonToken.Null)
@@ -34,19 +34,15 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
                 instance = null;
             }
             else if (token == JsonToken.Number &&
-                     BigInteger.TryParse(reader.ReadValue(), IntegerNumberStyle, DefaultCultureInfo, out BigInteger parsed))
+                     BigInteger.TryParse(reader.ReadValue(), IntegerNumberStyle, DefaultCultureInfo,
+                         out BigInteger parsed))
             {
                 instance = parsed;
             }
             else
             {
-                ThrowInvalidJsonException<object>();
+                instance = ThrowInvalidJsonException<BigInteger?>();
             }
-        }
-
-        public override BigInteger? NewInstance()
-        {
-            return null;
         }
     }
 }

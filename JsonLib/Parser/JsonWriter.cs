@@ -17,9 +17,10 @@
 
 namespace com.github.zvreifnitz.JsonLib.Parser
 {
+    using System;
     using System.IO;
 
-    internal sealed class JsonWriter : IJsonWriter
+    internal sealed class JsonWriter : IJsonWriter, IDisposable
     {
         private readonly TextWriter writer;
 
@@ -36,6 +37,10 @@ namespace com.github.zvreifnitz.JsonLib.Parser
         public void WriteRaw(string value)
         {
             writer.Write(value);
+        }
+
+        public void Dispose()
+        {
         }
     }
 }

@@ -24,18 +24,13 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
             writer.WriteRaw(instance.ToString(DefaultCultureInfo));
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, ref ulong instance)
+        public override void FromJson(IJsonSerializators context, IJsonReader reader, out ulong instance)
         {
             if (reader.GetNextToken() != JsonToken.Number ||
                 !ulong.TryParse(reader.ReadValue(), IntegerNumberStyle, DefaultCultureInfo, out instance))
             {
-                ThrowInvalidJsonException<object>();
+                instance = ThrowInvalidJsonException<ulong>();
             }
-        }
-
-        public override ulong NewInstance()
-        {
-            return new ulong();
         }
     }
 }

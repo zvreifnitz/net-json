@@ -24,7 +24,7 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
             writer.WriteRaw(instance.HasValue ? instance.Value.ToString(DefaultCultureInfo) : Null);
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, ref decimal? instance)
+        public override void FromJson(IJsonSerializators context, IJsonReader reader, out decimal? instance)
         {
             var token = reader.GetNextToken();
             if (token == JsonToken.Null)
@@ -38,13 +38,8 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
             }
             else
             {
-                ThrowInvalidJsonException<object>();
+                instance = ThrowInvalidJsonException<decimal?>();
             }
-        }
-
-        public override decimal? NewInstance()
-        {
-            return null;
         }
     }
 }

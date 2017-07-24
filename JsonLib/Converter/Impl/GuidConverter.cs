@@ -26,18 +26,13 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
             writer.EncodeAndWrite(instance.ToString("D"));
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, ref Guid instance)
+        public override void FromJson(IJsonSerializators context, IJsonReader reader, out Guid instance)
         {
             if (reader.GetNextToken() != JsonToken.String ||
                 !Guid.TryParse(reader.ReadValue(), out instance))
             {
                 ThrowInvalidJsonException<object>();
             }
-        }
-
-        public override Guid NewInstance()
-        {
-            return Guid.Empty;
         }
     }
 }

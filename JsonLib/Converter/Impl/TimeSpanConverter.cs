@@ -26,7 +26,7 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
             writer.WriteRaw(instance.Ticks.ToString(DefaultCultureInfo));
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, ref TimeSpan instance)
+        public override void FromJson(IJsonSerializators context, IJsonReader reader, out TimeSpan instance)
         {
             if (reader.GetNextToken() == JsonToken.Number &&
                 long.TryParse(reader.ReadValue(), IntegerNumberStyle, DefaultCultureInfo, out long parsed))
@@ -37,11 +37,6 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
             {
                 ThrowInvalidJsonException<object>();
             }
-        }
-
-        public override TimeSpan NewInstance()
-        {
-            return TimeSpan.Zero;
         }
     }
 }

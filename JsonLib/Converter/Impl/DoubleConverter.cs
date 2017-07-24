@@ -24,18 +24,13 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
             writer.WriteRaw(instance.ToString(DefaultCultureInfo));
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, ref double instance)
+        public override void FromJson(IJsonSerializators context, IJsonReader reader, out double instance)
         {
             if (reader.GetNextToken() != JsonToken.Number ||
                 !double.TryParse(reader.ReadValue(), FloatNumberStyle, DefaultCultureInfo, out instance))
             {
-                ThrowInvalidJsonException<object>();
+                instance = ThrowInvalidJsonException<double>();
             }
-        }
-
-        public override double NewInstance()
-        {
-            return new double();
         }
     }
 }

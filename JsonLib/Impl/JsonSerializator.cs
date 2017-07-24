@@ -45,12 +45,18 @@ namespace com.github.zvreifnitz.JsonLib.Impl
 
         public void ToJson(TextWriter writer, T instance)
         {
-            Mapper.ToJson(_context, new JsonWriter(writer), instance);
+            using (var jsonWriter = new JsonWriter(writer))
+            {
+                Mapper.ToJson(_context, jsonWriter, instance);
+            }
         }
 
         public T FromJson(TextReader reader)
         {
-            return Mapper.FromJson(_context, new JsonReader(reader));
+            using (var jsonReader = new JsonReader(reader))
+            {
+                return Mapper.FromJson(_context, jsonReader);
+            }
         }
 
         public void ToJson(StringBuilder builder, T instance)

@@ -40,9 +40,7 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
     {
         public abstract void ToJson(IJsonSerializators context, IJsonWriter writer, T instance);
 
-        public abstract void FromJson(IJsonSerializators context, IJsonReader reader, ref T instance);
-
-        public abstract T NewInstance();
+        public abstract void FromJson(IJsonSerializators context, IJsonReader reader, out T instance);
 
         protected TR ThrowInvalidJsonException<TR>()
         {

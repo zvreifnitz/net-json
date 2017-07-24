@@ -27,7 +27,7 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
             writer.WriteRaw(instance.ToUnixMillis().ToString(DefaultCultureInfo));
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, ref DateTimeOffset instance)
+        public override void FromJson(IJsonSerializators context, IJsonReader reader, out DateTimeOffset instance)
         {
             if (reader.GetNextToken() == JsonToken.Number &&
                 long.TryParse(reader.ReadValue(), IntegerNumberStyle, DefaultCultureInfo, out long parsed))
@@ -36,13 +36,8 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
             }
             else
             {
-                ThrowInvalidJsonException<object>();
+                instance = ThrowInvalidJsonException<DateTimeOffset>();
             }
-        }
-
-        public override DateTimeOffset NewInstance()
-        {
-            return 0L.ToDateTimeOffset();
         }
     }
 }

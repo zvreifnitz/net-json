@@ -24,7 +24,7 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
             writer.WriteRaw(instance.HasValue ? (instance.Value ? True : False) : Null);
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, ref bool? instance)
+        public override void FromJson(IJsonSerializators context, IJsonReader reader, out bool? instance)
         {
             switch (reader.GetNextToken())
             {
@@ -38,14 +38,9 @@ namespace com.github.zvreifnitz.JsonLib.Converter.Impl
                     instance = null;
                     break;
                 default:
-                    ThrowInvalidJsonException<object>();
+                    instance = ThrowInvalidJsonException<bool?>();
                     break;
             }
-        }
-
-        public override bool? NewInstance()
-        {
-            return null;
         }
     }
 }
