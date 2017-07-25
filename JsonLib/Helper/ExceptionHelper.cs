@@ -17,11 +17,42 @@
 
 namespace com.github.zvreifnitz.JsonLib.Helper
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public static class ExceptionHelper
     {
         public static T ThrowInvalidJsonException<T>()
         {
             throw new JsonException("Invalid JSON input");
+        }
+
+        public static IJsonSerializator<T> ThrowMapperNotRegisteredException<T>()
+        {
+            throw new JsonException(string.Format("Mapper for type '{0}' is not registered", typeof(T).FullName));
+        }
+
+        public static IJsonMapper<T> ThrowNoSuitableBuilderException<T>()
+        {
+            throw new JsonException(string.Format("Mapper for type '{0}' is not registered", typeof(T).FullName));
+        }
+
+        public static IJsonMapper<T> ThrowManyBuildersException<T>(List<IJsonMapperBuilder> builders)
+        {
+            var builderNames = string.Join(", ", builders.Select(b => b.GetType().FullName));
+            throw new JsonException(string.Format("Type '{0}' can be built by many builders: [{1}]", typeof(T).FullName,
+                builderNames));
+        }
+
+        public static T ThrowEndOfStreamException<T>()
+        {
+            throw new JsonException("End of stream");
+        }
+
+        public static T ThrowUnexpectedException<T>(Exception exc)
+        {
+            throw new JsonException("Unexpected exception", exc);
         }
     }
 }

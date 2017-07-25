@@ -17,8 +17,9 @@
 
 namespace com.github.zvreifnitz.JsonLib
 {
-    public interface IJsonMapperBuilder<T>
+    public interface IJsonMapperBuilder
     {
-        IJsonMapper<T> Build();
+        bool CanBuild<T>(IJsonSerializators context);
+        IJsonMapper<T> Build<T>(IJsonSerializators context);
     }
 }

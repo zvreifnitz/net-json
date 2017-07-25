@@ -15,18 +15,22 @@
  *
  */
 
-namespace com.github.zvreifnitz.JsonLib
+namespace com.github.zvreifnitz.JsonLib.Mapper.Simple.Impl
 {
-    using System;
-
-    public sealed class JsonException : Exception
+    internal sealed class DoubleConverter : ConverterBase<double>
     {
-        public JsonException(string msg) : base(msg)
+        public override void ToJson(IJsonSerializators context, IJsonWriter writer, double instance)
         {
+            writer.WriteRaw(instance.ToString(DefaultCultureInfo));
         }
 
-        public JsonException(string msg, Exception exc) : base(msg, exc)
+        public override void FromJson(IJsonSerializators context, IJsonReader reader, out double instance)
         {
+            if (reader.GetNextToken() != JsonToken.Number ||
+                !double.TryParse(reader.ReadValue(), FloatNumberStyle, DefaultCultureInfo, out instance))
+            {
+                instance = ThrowInvalidJsonException<double>();
+            }
         }
     }
 }

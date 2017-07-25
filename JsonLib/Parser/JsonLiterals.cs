@@ -22,5 +22,11 @@ namespace com.github.zvreifnitz.JsonLib.Parser
         internal const string Null = "null";
         internal const string True = "true";
         internal const string False = "false";
+        internal const string ArrayStart = "[";
+        internal const string ArrayEnd = "]";
+        internal const string ObjectStart = "{";
+        internal const string ObjectEnd = "}";
+        internal const string Comma = ",";
+        internal const string Colon = ":";
     }
 }

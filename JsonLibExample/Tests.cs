@@ -15,6 +15,8 @@
  *
  */
 
+using System.Collections.Generic;
+
 namespace JsonLibExample
 {
     using System;
@@ -33,6 +35,8 @@ namespace JsonLibExample
             ctx.TestGuidNullable();
             ctx.TestChar();
             ctx.TestCharNullable();
+            ctx.TestListOfInt();
+            ctx.TestListOfListOfString();
         }
 
         private static void TestString(this IJsonSerializators ctx)
@@ -204,6 +208,53 @@ namespace JsonLibExample
             if (input2 != output2)
             {
                 throw new Exception("CharNullable test 2 failed...");
+            }
+        }
+
+        private static void TestListOfInt(this IJsonSerializators ctx)
+        {
+            var serializator = ctx.GetJsonSerializator<List<int>>();
+
+            var input1 = new List<int> {246};
+            var json1 = serializator.ToJson(input1);
+            var output1 = serializator.FromJson(json1);
+
+            if (input1[0] != output1[0])
+            {
+                throw new Exception("TestListOfInt test 1 failed...");
+            }
+
+            var input2 = (List<int>)null;
+            var json2 = serializator.ToJson(input2);
+            var output2 = serializator.FromJson(json2);
+
+            if (input2 != output2)
+            {
+                throw new Exception("TestListOfInt test 2 failed...");
+            }
+        }
+
+
+        private static void TestListOfListOfString(this IJsonSerializators ctx)
+        {
+            var serializator = ctx.GetJsonSerializator<List<List<string>>>();
+
+            var input1 = new List<List<string>> {new List<string> {"Here is some string!"}};
+            var json1 = serializator.ToJson(input1);
+            var output1 = serializator.FromJson(json1);
+
+            if (input1[0][0] != output1[0][0])
+            {
+                throw new Exception("TestListOfListOfString test 1 failed...");
+            }
+
+            var input2 = (List<List<string>>)null;
+            var json2 = serializator.ToJson(input2);
+            var output2 = serializator.FromJson(json2);
+
+            if (input2 != output2)
+            {
+                throw new Exception("TestListOfListOfString test 2 failed...");
             }
         }
     }

@@ -15,20 +15,21 @@
  *
  */
 
-using System.Collections.Generic;
-using System.Linq.Expressions;
-
-namespace JsonLibExample
+namespace com.github.zvreifnitz.JsonLib.Mapper.Simple.Impl
 {
-    using com.github.zvreifnitz.JsonLib;
-
-    public static class Program
+    internal sealed class DecimalConverter : ConverterBase<decimal>
     {
-        public static void Main(string[] args)
+        public override void ToJson(IJsonSerializators context, IJsonWriter writer, decimal instance)
         {
-            using (var ctx = JsonSerializationFactory.NewJsonSerializationContext())
+            writer.WriteRaw(instance.ToString(DefaultCultureInfo));
+        }
+
+        public override void FromJson(IJsonSerializators context, IJsonReader reader, out decimal instance)
+        {
+            if (reader.GetNextToken() != JsonToken.Number ||
+                !decimal.TryParse(reader.ReadValue(), FloatNumberStyle, DefaultCultureInfo, out instance))
             {
-                Tests.Run(ctx);
+                instance = ThrowInvalidJsonException<decimal>();
             }
         }
     }

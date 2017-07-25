@@ -65,12 +65,12 @@ namespace com.github.zvreifnitz.JsonLib.Parser
                                 var tmp = ProcessChar_NumberMode(true);
                                 if (tmp == null)
                                 {
-                                    throw new JsonException("End of stream");
+                                    return ExceptionHelper.ThrowEndOfStreamException<JsonToken>();
                                 }
                                 _currToken = tmp.Value;
                                 return _currToken;
                             }
-                            throw new JsonException("End of stream");
+                            return ExceptionHelper.ThrowEndOfStreamException<JsonToken>();
                         }
                         _prevChar = _currChar;
                         _currChar = nextCharTmp.Value;

@@ -15,18 +15,11 @@
  *
  */
 
-namespace com.github.zvreifnitz.JsonLib
+namespace com.github.zvreifnitz.JsonLib.Mapper.Simple
 {
-    using System;
-
-    public interface IJsonSerializators
+    internal interface ISimpleConverter<T>
     {
-        IJsonSerializator<T> GetJsonSerializator<T>();
-    }
-
-    public interface IJsonSerializationContext : IJsonSerializators, IDisposable
-    {
-        bool RegisterMapper<T>(IJsonMapper<T> mapper);
-        bool UnregisterMapper<T>(IJsonMapper<T> mapper);
+        void ToJson(IJsonSerializators context, IJsonWriter writer, T instance);
+        void FromJson(IJsonSerializators context, IJsonReader reader, out T instance);
     }
 }

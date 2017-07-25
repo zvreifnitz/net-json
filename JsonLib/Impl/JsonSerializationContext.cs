@@ -21,19 +21,22 @@ namespace com.github.zvreifnitz.JsonLib.Impl
     using System.Threading;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-
+    using Helper;
+    
     internal sealed class JsonSerializationContext : IJsonSerializationContext
     {
-        private static int IdSeed;
+        private static int _IdSeed;
 
         private readonly object _lock = new object();
-        private readonly int _id = Interlocked.Increment(ref IdSeed);
+        private readonly int _id = Interlocked.Increment(ref _IdSeed);
         private readonly List<Action> _disposeActions = new List<Action>();
+        private readonly List<IJsonMapperBuilder> _mapperBuilders = new List<IJsonMapperBuilder>();
         private bool _disposed;
 
         internal JsonSerializationContext()
         {
             this.RegisterDefaultMappers();
+            this.RegisterDefaultBuilders();
         }
 
         public bool RegisterMapper<T>(IJsonMapper<T> mapper)
@@ -54,6 +57,30 @@ namespace com.github.zvreifnitz.JsonLib.Impl
             }
         }
 
+        public bool RegisterMapperBulder(IJsonMapperBuilder builder)
+        {
+            if (builder == null)
+            {
+                return false;
+            }
+            lock (_lock)
+            {
+                if (_disposed)
+                {
+                    return false;
+                }
+                foreach (var existing in _mapperBuilders)
+                {
+                    if (existing == builder || existing.GetType() == builder.GetType())
+                    {
+                        return false;
+                    }
+                }
+                _mapperBuilders.Add(builder);
+                return true;
+            }
+        }
+
         public bool UnregisterMapper<T>(IJsonMapper<T> mapper)
         {
             if (mapper == null)
@@ -66,12 +93,77 @@ namespace com.github.zvreifnitz.JsonLib.Impl
             }
         }
 
+        public bool UnregisterMapperBulder(IJsonMapperBuilder builder)
+        {
+            if (builder == null)
+            {
+                return false;
+            }
+            lock (_lock)
+            {
+                if (_disposed)
+                {
+                    return false;
+                }
+                IJsonMapperBuilder found = null;
+                foreach (var existing in _mapperBuilders)
+                {
+                    if (existing == builder || existing.GetType() == builder.GetType())
+                    {
+                        found = existing;
+                        break;
+                    }
+                }
+                if (found == null)
+                {
+                    return false;
+                }
+                _mapperBuilders.Remove(found);
+                return true;
+            }
+        }
+
         public IJsonSerializator<T> GetJsonSerializator<T>()
         {
             var wrapper = JsonSerializatorCache<T>.GetJsonSerializator(this);
+            return wrapper != null ? wrapper.JsonSerializator : BuildJsonSerializator<T>();
+        }
+
+        private IJsonSerializator<T> BuildJsonSerializator<T>()
+        {
+            IJsonMapper<T> mapper = BuildJsonMapper<T>();
+            RegisterMapper(mapper);
+            var wrapper = JsonSerializatorCache<T>.GetJsonSerializator(this);
             return wrapper != null
                 ? wrapper.JsonSerializator
-                : throw new JsonException(string.Format("Mapper for type '{0}' is not registered", typeof(T).FullName));
+                : ExceptionHelper.ThrowMapperNotRegisteredException<T>();
+        }
+
+        private IJsonMapper<T> BuildJsonMapper<T>()
+        {
+            List<IJsonMapperBuilder> builders = GetAvailableBuilders<T>();
+            switch (builders.Count)
+            {
+                case 0:
+                    return ExceptionHelper.ThrowNoSuitableBuilderException<T>();
+                case 1:
+                    return builders[0].Build<T>(this);
+                default:
+                    return ExceptionHelper.ThrowManyBuildersException<T>(builders);
+            }
+        }
+
+        private List<IJsonMapperBuilder> GetAvailableBuilders<T>()
+        {
+            return GetAllBuilders().FindAll(b => b.CanBuild<T>(this));
+        }
+
+        private List<IJsonMapperBuilder> GetAllBuilders()
+        {
+            lock (_lock)
+            {
+                return new List<IJsonMapperBuilder>(_mapperBuilders);
+            }
         }
 
         private bool UnregisterMapperInternal<T>(IJsonMapper<T> mapper)
@@ -93,6 +185,7 @@ namespace com.github.zvreifnitz.JsonLib.Impl
                 _disposed = true;
                 actions = new List<Action>(_disposeActions);
                 _disposeActions.Clear();
+                _mapperBuilders.Clear();
             }
             actions.ForEach(a => a());
         }

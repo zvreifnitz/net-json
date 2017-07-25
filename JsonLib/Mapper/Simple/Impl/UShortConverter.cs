@@ -15,20 +15,21 @@
  *
  */
 
-using System.Collections.Generic;
-using System.Linq.Expressions;
-
-namespace JsonLibExample
+namespace com.github.zvreifnitz.JsonLib.Mapper.Simple.Impl
 {
-    using com.github.zvreifnitz.JsonLib;
-
-    public static class Program
+    internal sealed class UShortConverter : ConverterBase<ushort>
     {
-        public static void Main(string[] args)
+        public override void ToJson(IJsonSerializators context, IJsonWriter writer, ushort instance)
         {
-            using (var ctx = JsonSerializationFactory.NewJsonSerializationContext())
+            writer.WriteRaw(instance.ToString(DefaultCultureInfo));
+        }
+
+        public override void FromJson(IJsonSerializators context, IJsonReader reader, out ushort instance)
+        {
+            if (reader.GetNextToken() != JsonToken.Number ||
+                !ushort.TryParse(reader.ReadValue(), IntegerNumberStyle, DefaultCultureInfo, out instance))
             {
-                Tests.Run(ctx);
+                instance = ThrowInvalidJsonException<ushort>();
             }
         }
     }

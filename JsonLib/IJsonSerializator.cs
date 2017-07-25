@@ -19,8 +19,12 @@ namespace com.github.zvreifnitz.JsonLib
 {
     using System.IO;
     using System.Text;
-    
-    public interface IJsonSerializator<T>
+
+    public interface IJsonSerializator
+    {
+    }
+
+    public interface IJsonSerializator<T> : IJsonSerializator
     {
         IJsonMapper<T> Mapper { get; }
 

@@ -15,10 +15,10 @@
  *
  */
 
-using System;
-
 namespace com.github.zvreifnitz.JsonLib.Helper
 {
+    using System;
+    
     public static class DateTimeHelper
     {
         private const long TicksPerMillisecond = TimeSpan.TicksPerMillisecond;
