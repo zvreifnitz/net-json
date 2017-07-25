@@ -21,12 +21,25 @@ namespace com.github.zvreifnitz.JsonLib
 
     public sealed class JsonException : Exception
     {
-        public JsonException(string msg) : base(msg)
+        public JsonExceptionType Type { get; }
+
+        public JsonException(JsonExceptionType type, string msg) : base(msg)
         {
+            Type = type;
         }
 
-        public JsonException(string msg, Exception exc) : base(msg, exc)
+        public JsonException(JsonExceptionType type, string msg, Exception exc) : base(msg, exc)
         {
+            Type = type;
         }
+    }
+
+    public enum JsonExceptionType
+    {
+        InvalidJson,
+        MapperNotRegistered,
+        TooManyBuilders,
+        Unexpected,
+        EndOfStream
     }
 }

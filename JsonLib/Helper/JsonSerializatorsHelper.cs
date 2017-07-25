@@ -33,6 +33,14 @@ namespace com.github.zvreifnitz.JsonLib.Helper
                 object result = generic.Invoke(serializators, null);
                 return (IJsonSerializator)result;
             }
+            catch (JsonException exc)
+            {
+                if (exc.Type == JsonExceptionType.MapperNotRegistered)
+                {
+                    return null;
+                }
+                throw;
+            }
             catch (Exception exc)
             {
                 return ExceptionHelper.ThrowUnexpectedException<IJsonSerializator>(exc);

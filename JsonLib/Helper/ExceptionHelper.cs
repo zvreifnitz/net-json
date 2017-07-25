@@ -25,34 +25,37 @@ namespace com.github.zvreifnitz.JsonLib.Helper
     {
         public static T ThrowInvalidJsonException<T>()
         {
-            throw new JsonException("Invalid JSON input");
+            throw new JsonException(JsonExceptionType.InvalidJson, "Invalid JSON input");
         }
 
         public static IJsonSerializator<T> ThrowMapperNotRegisteredException<T>()
         {
-            throw new JsonException(string.Format("Mapper for type '{0}' is not registered", typeof(T).FullName));
+            throw new JsonException(JsonExceptionType.MapperNotRegistered,
+                string.Format("Mapper for type '{0}' is not registered", typeof(T).FullName));
         }
 
         public static IJsonMapper<T> ThrowNoSuitableBuilderException<T>()
         {
-            throw new JsonException(string.Format("Mapper for type '{0}' is not registered", typeof(T).FullName));
+            throw new JsonException(JsonExceptionType.MapperNotRegistered,
+                string.Format("Mapper for type '{0}' is not registered", typeof(T).FullName));
         }
 
         public static IJsonMapper<T> ThrowManyBuildersException<T>(List<IJsonMapperBuilder> builders)
         {
             var builderNames = string.Join(", ", builders.Select(b => b.GetType().FullName));
-            throw new JsonException(string.Format("Type '{0}' can be built by many builders: [{1}]", typeof(T).FullName,
+            throw new JsonException(JsonExceptionType.TooManyBuilders, string.Format(
+                "Type '{0}' can be built by many builders: [{1}]", typeof(T).FullName,
                 builderNames));
         }
 
         public static T ThrowEndOfStreamException<T>()
         {
-            throw new JsonException("End of stream");
+            throw new JsonException(JsonExceptionType.EndOfStream, "End of stream");
         }
 
         public static T ThrowUnexpectedException<T>(Exception exc)
         {
-            throw new JsonException("Unexpected exception", exc);
+            throw new JsonException(JsonExceptionType.Unexpected, "Unexpected exception", exc);
         }
     }
 }

@@ -37,6 +37,8 @@ namespace JsonLibExample
             ctx.TestCharNullable();
             ctx.TestListOfInt();
             ctx.TestListOfListOfString();
+            ctx.TestDictionaryOfIntInt();
+            ctx.TestDictionaryOfStringInt();
         }
 
         private static void TestString(this IJsonSerializators ctx)
@@ -224,16 +226,24 @@ namespace JsonLibExample
                 throw new Exception("TestListOfInt test 1 failed...");
             }
 
-            var input2 = (List<int>)null;
+            var input2 = new List<int>();
             var json2 = serializator.ToJson(input2);
             var output2 = serializator.FromJson(json2);
 
-            if (input2 != output2)
+            if (input2.Count != output2.Count)
             {
                 throw new Exception("TestListOfInt test 2 failed...");
             }
-        }
 
+            var input3 = (List<int>)null;
+            var json3 = serializator.ToJson(input3);
+            var output3 = serializator.FromJson(json3);
+
+            if (input3 != output3)
+            {
+                throw new Exception("TestListOfInt test 3 failed...");
+            }
+        }
 
         private static void TestListOfListOfString(this IJsonSerializators ctx)
         {
@@ -257,5 +267,70 @@ namespace JsonLibExample
                 throw new Exception("TestListOfListOfString test 2 failed...");
             }
         }
+
+        private static void TestDictionaryOfIntInt(this IJsonSerializators ctx)
+        {
+            var serializator = ctx.GetJsonSerializator<Dictionary<int, int>>();
+
+            var input1 = new Dictionary<int, int> {{123, 246}, {456, 81012}};
+            var json1 = serializator.ToJson(input1);
+            var output1 = serializator.FromJson(json1);
+
+            if (input1[123] != output1[123] || input1[456] != output1[456])
+            {
+                throw new Exception("TestDictionaryOfIntInt test 1 failed...");
+            }
+
+            var input2 = new Dictionary<int, int>();
+            var json2 = serializator.ToJson(input2);
+            var output2 = serializator.FromJson(json2);
+
+            if (input2.Count != output2.Count)
+            {
+                throw new Exception("TestDictionaryOfIntInt test 2 failed...");
+            }
+
+            var input3 = (Dictionary<int, int>)null;
+            var json3 = serializator.ToJson(input3);
+            var output3 = serializator.FromJson(json3);
+
+            if (input3 != output3)
+            {
+                throw new Exception("TestDictionaryOfIntInt test 3 failed...");
+            }
+        }
+        
+        private static void TestDictionaryOfStringInt(this IJsonSerializators ctx)
+        {
+            var serializator = ctx.GetJsonSerializator<Dictionary<string, int>>();
+
+            var input1 = new Dictionary<string, int> {{"a", 246}, {"b", 81012}};
+            var json1 = serializator.ToJson(input1);
+            var output1 = serializator.FromJson(json1);
+
+            if (input1["a"] != output1["a"] || input1["b"] != output1["b"])
+            {
+                throw new Exception("TestDictionaryOfStringInt test 1 failed...");
+            }
+
+            var input2 = new Dictionary<string, int>();
+            var json2 = serializator.ToJson(input2);
+            var output2 = serializator.FromJson(json2);
+
+            if (input2.Count != output2.Count)
+            {
+                throw new Exception("TestDictionaryOfStringInt test 2 failed...");
+            }
+
+            var input3 = (Dictionary<string, int>)null;
+            var json3 = serializator.ToJson(input3);
+            var output3 = serializator.FromJson(json3);
+
+            if (input3 != output3)
+            {
+                throw new Exception("TestDictionaryOfStringInt test 3 failed...");
+            }
+        }
+        
     }
 }

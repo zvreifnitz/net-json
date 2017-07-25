@@ -23,15 +23,15 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
     using Parser;
     using Common;
 
-    internal abstract class ListMapperBuilderBase : JsonMapperBuilderBase
+    internal abstract class SetMapperBuilderBase : JsonMapperBuilderBase
     {
-        protected sealed class ListMapper<TListImpl, TList, TItem> : IJsonMapper<TList>
-            where TList : IList<TItem>
-            where TListImpl : TList, new()
+        protected sealed class SetMapper<TSetImpl, TSet, TItem> : IJsonMapper<TSet>
+            where TSet : ISet<TItem>
+            where TSetImpl : TSet, new()
         {
             private readonly IJsonSerializator<TItem> _serializator;
 
-            public ListMapper(IJsonSerializator<TItem> serializator)
+            public SetMapper(IJsonSerializator<TItem> serializator)
             {
                 _serializator = serializator;
             }
@@ -40,7 +40,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
 
             public bool CanDeserialize => true;
 
-            public void ToJson(IJsonSerializators context, IJsonWriter writer, TList instance)
+            public void ToJson(IJsonSerializators context, IJsonWriter writer, TSet instance)
             {
                 if (instance == null)
                 {
@@ -51,11 +51,18 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
                     writer.WriteRaw(JsonLiterals.ArrayStart);
                     if (instance.Count > 0)
                     {
-                        ToJsonItem(context, writer, instance[0]);
-                        for (int i = 1; i < instance.Count; i++)
+                        bool addComma = false;
+                        foreach (var item in instance)
                         {
-                            writer.WriteRaw(JsonLiterals.Comma);
-                            ToJsonItem(context, writer, instance[i]);
+                            if (addComma)
+                            {
+                                writer.WriteRaw(JsonLiterals.Comma);
+                            }
+                            else
+                            {
+                                addComma = true;
+                            }
+                            ToJsonItem(context, writer, item);
                         }
                     }
                     writer.WriteRaw(JsonLiterals.ArrayEnd);
@@ -74,18 +81,18 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
                 }
             }
 
-            public TList FromJson(IJsonSerializators context, IJsonReader reader)
+            public TSet FromJson(IJsonSerializators context, IJsonReader reader)
             {
                 JsonToken token = reader.GetNextToken();
                 if (token == JsonToken.Null)
                 {
-                    return default(TList);
+                    return default(TSet);
                 }
                 if (token != JsonToken.ArrayStart)
                 {
-                    return ExceptionHelper.ThrowInvalidJsonException<TList>();
+                    return ExceptionHelper.ThrowInvalidJsonException<TSet>();
                 }
-                TListImpl result = new TListImpl();
+                TSetImpl result = new TSetImpl();
                 while (true)
                 {
                     token = reader.GetNextToken();
@@ -111,33 +118,48 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
         }
     }
 
-    internal sealed class ItfListMapperBuilder : ListMapperBuilderBase
+    internal sealed class ItfSetMapperBuilder : SetMapperBuilderBase
     {
-        protected override Type GenericTypeDefinition => typeof(IList<>);
+        protected override Type GenericTypeDefinition => typeof(ISet<>);
 
         protected override Type[] GetMethodTypes(Type type, Type[] types)
         {
             return types;
         }
 
-        private IJsonMapper<IList<T>> BuildReflectionInvoke<T>(IJsonSerializator<T> serializator)
+        private IJsonMapper<ISet<T>> BuildReflectionInvoke<T>(IJsonSerializator<T> serializator)
         {
-            return new ListMapper<List<T>, IList<T>, T>(serializator);
+            return new SetMapper<HashSet<T>, ISet<T>, T>(serializator);
         }
     }
 
-    internal sealed class ListMapperBuilder : ListMapperBuilderBase
+    internal sealed class HashSetMapperBuilder : SetMapperBuilderBase
     {
-        protected override Type GenericTypeDefinition => typeof(List<>);
+        protected override Type GenericTypeDefinition => typeof(HashSet<>);
 
         protected override Type[] GetMethodTypes(Type type, Type[] types)
         {
             return types;
         }
 
-        private IJsonMapper<List<T>> BuildReflectionInvoke<T>(IJsonSerializator<T> serializator)
+        private IJsonMapper<HashSet<T>> BuildReflectionInvoke<T>(IJsonSerializator<T> serializator)
         {
-            return new ListMapper<List<T>, List<T>, T>(serializator);
+            return new SetMapper<HashSet<T>, HashSet<T>, T>(serializator);
+        }
+    }
+
+    internal sealed class SortedSetMapperBuilder : SetMapperBuilderBase
+    {
+        protected override Type GenericTypeDefinition => typeof(SortedSet<>);
+
+        protected override Type[] GetMethodTypes(Type type, Type[] types)
+        {
+            return types;
+        }
+
+        private IJsonMapper<SortedSet<T>> BuildReflectionInvoke<T>(IJsonSerializator<T> serializator)
+        {
+            return new SetMapper<SortedSet<T>, SortedSet<T>, T>(serializator);
         }
     }
 }
