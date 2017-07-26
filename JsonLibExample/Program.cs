@@ -26,7 +26,7 @@ namespace JsonLibExample
             using (var ctx = JsonSerializationFactory.NewJsonSerializationContext())
             {
                 Tests.Run(ctx);
-                PerfComparison.Run(ctx);
+                StringPerfComparison.Run(ctx);
             }
         }
     }

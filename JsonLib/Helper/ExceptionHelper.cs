@@ -34,13 +34,13 @@ namespace com.github.zvreifnitz.JsonLib.Helper
                 string.Format("Mapper for type '{0}' is not registered", typeof(T).FullName));
         }
 
-        public static IJsonMapper<T> ThrowNoSuitableBuilderException<T>()
+        public static IJsonMapperBuilder ThrowNoSuitableBuilderException<T>()
         {
             throw new JsonException(JsonExceptionType.MapperNotRegistered,
                 string.Format("Mapper for type '{0}' is not registered", typeof(T).FullName));
         }
 
-        public static IJsonMapper<T> ThrowManyBuildersException<T>(List<IJsonMapperBuilder> builders)
+        public static IJsonMapperBuilder ThrowManyBuildersException<T>(List<IJsonMapperBuilder> builders)
         {
             var builderNames = string.Join(", ", builders.Select(b => b.GetType().FullName));
             throw new JsonException(JsonExceptionType.TooManyBuilders, string.Format(

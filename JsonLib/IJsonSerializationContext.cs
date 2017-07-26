@@ -27,6 +27,9 @@ namespace com.github.zvreifnitz.JsonLib
     public interface IJsonSerializationContext : IJsonSerializators, IDisposable
     {
         bool RegisterMapper<T>(IJsonMapper<T> mapper);
-        bool UnregisterMapper<T>(IJsonMapper<T> mapper);
+        bool UnregisterMapper<T>();
+        bool RegisterMapperBulder<T>(T builder) where T : IJsonMapperBuilder;
+        bool UnregisterMapperBulder<T>() where T : IJsonMapperBuilder;
+        IJsonSerializationContext Clone();
     }
 }

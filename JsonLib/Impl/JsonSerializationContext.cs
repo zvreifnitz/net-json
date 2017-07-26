@@ -17,20 +17,20 @@
 
 namespace com.github.zvreifnitz.JsonLib.Impl
 {
-    using System;
+    using System.Linq;
     using System.Threading;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using Helper;
-    
+
     internal sealed class JsonSerializationContext : IJsonSerializationContext
     {
-        private static int _IdSeed;
+        private static int _idSeed;
 
         private readonly object _lock = new object();
-        private readonly int _id = Interlocked.Increment(ref _IdSeed);
-        private readonly List<Action> _disposeActions = new List<Action>();
-        private readonly List<IJsonMapperBuilder> _mapperBuilders = new List<IJsonMapperBuilder>();
+        private readonly int _id = Interlocked.Increment(ref _idSeed);
+        private readonly List<IWrapper> _mapperWrappers = new List<IWrapper>();
+        private readonly List<IWrapper> _mapperBuilders = new List<IWrapper>();
         private bool _disposed;
 
         internal JsonSerializationContext()
@@ -51,13 +51,15 @@ namespace com.github.zvreifnitz.JsonLib.Impl
                 {
                     return false;
                 }
-                JsonSerializatorCache<T>.Register(this, mapper);
-                _disposeActions.Add(() => UnregisterMapperInternal(mapper));
+                UnregisterMapperSync<T>();
+                MapperWrapper<T> wrapper = new MapperWrapper<T>(this, mapper);
+                JsonSerializatorCache<T>.Register(wrapper);
+                _mapperWrappers.Add(wrapper);
                 return true;
             }
         }
 
-        public bool RegisterMapperBulder(IJsonMapperBuilder builder)
+        public bool RegisterMapperBulder<T>(T builder) where T : IJsonMapperBuilder
         {
             if (builder == null)
             {
@@ -69,161 +71,253 @@ namespace com.github.zvreifnitz.JsonLib.Impl
                 {
                     return false;
                 }
-                foreach (var existing in _mapperBuilders)
-                {
-                    if (existing == builder || existing.GetType() == builder.GetType())
-                    {
-                        return false;
-                    }
-                }
-                _mapperBuilders.Add(builder);
+                UnregisterMapperBulderSync<T>();
+                BuilderWrapper<T> wrapper = new BuilderWrapper<T>(this, builder);
+                _mapperBuilders.Add(wrapper);
                 return true;
             }
         }
 
-        public bool UnregisterMapper<T>(IJsonMapper<T> mapper)
+        public bool UnregisterMapper<T>()
         {
-            if (mapper == null)
-            {
-                return false;
-            }
             lock (_lock)
             {
-                return !_disposed && UnregisterMapperInternal(mapper);
+                return !_disposed && UnregisterMapperSync<T>();
             }
         }
 
-        public bool UnregisterMapperBulder(IJsonMapperBuilder builder)
+        public bool UnregisterMapperBulder<T>() where T : IJsonMapperBuilder
         {
-            if (builder == null)
-            {
-                return false;
-            }
             lock (_lock)
             {
-                if (_disposed)
-                {
-                    return false;
-                }
-                IJsonMapperBuilder found = null;
-                foreach (var existing in _mapperBuilders)
-                {
-                    if (existing == builder || existing.GetType() == builder.GetType())
-                    {
-                        found = existing;
-                        break;
-                    }
-                }
-                if (found == null)
-                {
-                    return false;
-                }
-                _mapperBuilders.Remove(found);
-                return true;
+                return !_disposed && UnregisterMapperBulderSync<T>();
             }
         }
 
         public IJsonSerializator<T> GetJsonSerializator<T>()
         {
             var wrapper = JsonSerializatorCache<T>.GetJsonSerializator(this);
-            return wrapper != null ? wrapper.JsonSerializator : BuildJsonSerializator<T>();
+            if (wrapper != null)
+            {
+                return wrapper.JsonSerializator;
+            }
+            wrapper = BuildJsonSerializator<T>();
+            if (wrapper != null)
+            {
+                return wrapper.JsonSerializator;
+            }
+            return ExceptionHelper.ThrowMapperNotRegisteredException<T>();
         }
 
-        private IJsonSerializator<T> BuildJsonSerializator<T>()
+        public IJsonSerializationContext Clone()
         {
-            IJsonMapper<T> mapper = BuildJsonMapper<T>();
-            RegisterMapper(mapper);
-            var wrapper = JsonSerializatorCache<T>.GetJsonSerializator(this);
-            return wrapper != null
-                ? wrapper.JsonSerializator
-                : ExceptionHelper.ThrowMapperNotRegisteredException<T>();
+            IJsonSerializationContext result = new JsonSerializationContext();
+            lock (_lock)
+            {
+                foreach (var wrapper in _mapperWrappers)
+                {
+                    wrapper.Clone(result);
+                }
+                foreach (var builder in _mapperBuilders)
+                {
+                    builder.Clone(result);
+                }
+            }
+            return result;
         }
 
-        private IJsonMapper<T> BuildJsonMapper<T>()
+        private MapperWrapper<T> BuildJsonSerializator<T>()
         {
-            List<IJsonMapperBuilder> builders = GetAvailableBuilders<T>();
+            lock (_lock)
+            {
+                var existingWrapper = JsonSerializatorCache<T>.GetJsonSerializator(this);
+                if (existingWrapper != null)
+                {
+                    return existingWrapper;
+                }
+                MapperWrapper<T> createdWrapper = BuildMapperWrapperSync<T>();
+                JsonSerializatorCache<T>.Register(createdWrapper);
+                _mapperWrappers.Add(createdWrapper);
+                return createdWrapper;
+            }
+        }
+
+        private MapperWrapper<T> BuildMapperWrapperSync<T>()
+        {
+            IJsonMapperBuilder builder = GetBuilderSync<T>();
+            IJsonMapper<T> mapper = builder.Build<T>(this);
+            return new MapperWrapper<T>(this, mapper, builder);
+        }
+
+        private IJsonMapperBuilder GetBuilderSync<T>()
+        {
+            List<IJsonMapperBuilder> builders = GetAvailableBuildersSync<T>();
             switch (builders.Count)
             {
                 case 0:
                     return ExceptionHelper.ThrowNoSuitableBuilderException<T>();
                 case 1:
-                    return builders[0].Build<T>(this);
+                    return builders[0];
                 default:
                     return ExceptionHelper.ThrowManyBuildersException<T>(builders);
             }
         }
 
-        private List<IJsonMapperBuilder> GetAvailableBuilders<T>()
+        private List<IJsonMapperBuilder> GetAvailableBuildersSync<T>()
         {
-            return GetAllBuilders().FindAll(b => b.CanBuild<T>(this));
+            return GetAllBuildersSync().FindAll(b => b.CanBuild<T>(this));
         }
 
-        private List<IJsonMapperBuilder> GetAllBuilders()
+        private List<IJsonMapperBuilder> GetAllBuildersSync()
         {
             lock (_lock)
             {
-                return new List<IJsonMapperBuilder>(_mapperBuilders);
+                return new List<IJsonMapperBuilder>(_mapperBuilders.Select(i => i.GetBuilder()));
             }
         }
 
-        private bool UnregisterMapperInternal<T>(IJsonMapper<T> mapper)
+        private bool UnregisterMapperSync<T>()
         {
-            var wrapper = JsonSerializatorCache<T>.GetJsonSerializator(this);
-            if (wrapper == null || wrapper.Mapper != mapper && wrapper.MapperType != mapper.GetType())
+            var wrapper = JsonSerializatorCache<T>.Unregister(this);
+            if (wrapper == null)
             {
                 return false;
             }
-            JsonSerializatorCache<T>.Unregister(this);
+            _mapperWrappers.Remove(wrapper);
+            return true;
+        }
+
+        private bool UnregisterMapperBulderSync<T>()
+        {
+            var type = typeof(T);
+            IJsonMapperBuilder found = null;
+            foreach (var builder in _mapperBuilders)
+            {
+                if (builder.GetBuilder().GetType() == type)
+                {
+                    found = builder.GetBuilder();
+                    break;
+                }
+            }
+            if (found == null)
+            {
+                return false;
+            }
+            var toBeDisposed = new List<IWrapper>();
+            foreach (var mapperWrapper in _mapperWrappers)
+            {
+                var builder = mapperWrapper.GetBuilder();
+                if (builder == found)
+                {
+                    toBeDisposed.Add(mapperWrapper);
+                }
+            }
+            toBeDisposed.ForEach(a => Dispose());
             return true;
         }
 
         public void Dispose()
         {
-            List<Action> actions;
+            List<IWrapper> toBeDisposed;
             lock (_lock)
             {
                 _disposed = true;
-                actions = new List<Action>(_disposeActions);
-                _disposeActions.Clear();
+                toBeDisposed = new List<IWrapper>(_mapperWrappers);
+                _mapperWrappers.Clear();
                 _mapperBuilders.Clear();
             }
-            actions.ForEach(a => a());
+            toBeDisposed.ForEach(a => Dispose());
         }
 
-        private sealed class Wrapper<T>
+        private interface IWrapper
+        {
+            IJsonMapperBuilder GetBuilder();
+            void Clone(IJsonSerializationContext context);
+            void Dispose();
+            int ContextId { get; }
+        }
+
+        private sealed class BuilderWrapper<T> : IWrapper where T : IJsonMapperBuilder
+        {
+            private readonly JsonSerializationContext _context;
+            private readonly T _builder;
+
+            internal BuilderWrapper(JsonSerializationContext context, T builder)
+            {
+                _context = context;
+                _builder = builder;
+            }
+
+            public IJsonMapperBuilder GetBuilder()
+            {
+                return _builder;
+            }
+
+            public void Clone(IJsonSerializationContext context)
+            {
+                context.RegisterMapperBulder(_builder);
+            }
+
+            public void Dispose()
+            {
+                _context.UnregisterMapperBulder<T>();
+            }
+
+            public int ContextId => _context._id;
+        }
+
+        private sealed class MapperWrapper<T> : IWrapper
         {
             internal readonly IJsonSerializator<T> JsonSerializator;
-            internal readonly IJsonMapper<T> Mapper;
-            internal readonly Type MapperType;
+            private readonly JsonSerializationContext _context;
+            private readonly IJsonMapper<T> _mapper;
+            private readonly IJsonMapperBuilder _builder;
 
-            public Wrapper(IJsonSerializationContext context, IJsonMapper<T> mapper)
+            internal MapperWrapper(JsonSerializationContext context, IJsonMapper<T> mapper,
+                IJsonMapperBuilder builder = null)
             {
-                Mapper = mapper;
+                _builder = builder;
+                _mapper = mapper;
+                _context = context;
                 JsonSerializator = new JsonSerializator<T>(context, mapper);
-                MapperType = mapper.GetType();
             }
+
+            public IJsonMapperBuilder GetBuilder()
+            {
+                return _builder;
+            }
+
+            public void Clone(IJsonSerializationContext context)
+            {
+                context.RegisterMapper(_mapper);
+            }
+
+            public void Dispose()
+            {
+                _context.UnregisterMapper<T>();
+            }
+
+            public int ContextId => _context._id;
         }
 
         private static class JsonSerializatorCache<T>
         {
-            private static readonly ConcurrentDictionary<int, Wrapper<T>> Cache =
-                new ConcurrentDictionary<int, Wrapper<T>>();
+            private static readonly ConcurrentDictionary<int, MapperWrapper<T>> Cache =
+                new ConcurrentDictionary<int, MapperWrapper<T>>();
 
-            internal static Wrapper<T> GetJsonSerializator(JsonSerializationContext context)
+            internal static MapperWrapper<T> GetJsonSerializator(JsonSerializationContext context)
             {
-                return Cache.TryGetValue(context._id, out Wrapper<T> wrapper)
-                    ? wrapper
-                    : null;
+                return Cache.TryGetValue(context._id, out MapperWrapper<T> wrapper) ? wrapper : null;
             }
 
-            internal static void Register(JsonSerializationContext context, IJsonMapper<T> mapper)
+            internal static void Register(MapperWrapper<T> wrapper)
             {
-                Cache[context._id] = new Wrapper<T>(context, mapper);
+                Cache[wrapper.ContextId] = wrapper;
             }
 
-            internal static void Unregister(JsonSerializationContext context)
+            internal static MapperWrapper<T> Unregister(JsonSerializationContext context)
             {
-                Cache.TryRemove(context._id, out Wrapper<T> wrapper);
+                return Cache.TryRemove(context._id, out MapperWrapper<T> wrapper) ? wrapper : null;
             }
         }
     }
