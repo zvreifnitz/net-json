@@ -18,13 +18,21 @@
 namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
 {
     using System;
+    using System.Reflection;
     using System.Collections.Generic;
     using Helper;
     using Parser;
     using Common;
 
-    internal abstract class SetMapperBuilderBase : JsonMapperBuilderBase
+    internal abstract class SetMapperBuilderBase : MapperBuilderBase
     {
+        protected abstract Type GenericTypeDefinition { get; }
+
+        protected sealed override bool IsRequestedTypeSupported(Type type)
+        {
+            return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == GenericTypeDefinition;
+        }
+
         protected sealed class SetMapper<TSetImpl, TSet, TItem> : IJsonMapper<TSet>
             where TSet : ISet<TItem>
             where TSetImpl : TSet, new()

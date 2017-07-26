@@ -18,16 +18,24 @@
 namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
 {
     using System;
+    using System.Reflection;
     using System.Collections.Generic;
     using System.Collections.Concurrent;
     using Helper;
     using Parser;
     using Common;
 
-    internal abstract class DictionaryMapperBuilderBase : JsonMapperBuilderBase
+    internal abstract class DictionaryMapperBuilderBase : MapperBuilderBase
     {
         protected static readonly Type StringType = typeof(string);
 
+        protected abstract Type GenericTypeDefinition { get; }
+
+        protected sealed override bool IsRequestedTypeSupported(Type type)
+        {
+            return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == GenericTypeDefinition;
+        }
+        
         protected abstract class
             DictionaryMapperBase<TDictionaryImpl, TDictionary, TKey, TValue> : IJsonMapper<TDictionary>
             where TDictionary : IDictionary<TKey, TValue>

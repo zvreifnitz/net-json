@@ -69,6 +69,7 @@ namespace com.github.zvreifnitz.JsonLib.Impl
             context.RegisterMapper(UShortMapper);
         }
 
+        private static readonly IJsonMapperBuilder ArrayMapperBuilder = new ArrayMapperBuilder();
         private static readonly IJsonMapperBuilder NullableMapperBuilder = new NullableMapperBuilder();
         private static readonly IJsonMapperBuilder ItfListMapperBuilder = new ItfListMapperBuilder();
         private static readonly IJsonMapperBuilder ListMapperBuilder = new ListMapperBuilder();
@@ -80,9 +81,12 @@ namespace com.github.zvreifnitz.JsonLib.Impl
         private static readonly IJsonMapperBuilder ConcurrentDictionaryMapperBuilder = new ConcurrentDictionaryMapperBuilder();
         private static readonly IJsonMapperBuilder SortedDictionaryMapperBuilder = new SortedDictionaryMapperBuilder();
         private static readonly IJsonMapperBuilder SortedListMapperBuilder = new SortedListMapperBuilder();
+        private static readonly IJsonMapperBuilder CollectionMapperBuilder = new CollectionMapperBuilder();
+        private static readonly IJsonMapperBuilder ObservableCollectionMapperBuilder = new ObservableCollectionMapperBuilder();
         
         internal static void RegisterDefaultBuilders(this JsonSerializationContext context)
         {
+            context.RegisterMapperBulder(ArrayMapperBuilder);
             context.RegisterMapperBulder(NullableMapperBuilder);
             context.RegisterMapperBulder(ItfListMapperBuilder);
             context.RegisterMapperBulder(ListMapperBuilder);
@@ -94,6 +98,8 @@ namespace com.github.zvreifnitz.JsonLib.Impl
             context.RegisterMapperBulder(ConcurrentDictionaryMapperBuilder);
             context.RegisterMapperBulder(SortedDictionaryMapperBuilder);
             context.RegisterMapperBulder(SortedListMapperBuilder);
+            context.RegisterMapperBulder(CollectionMapperBuilder);
+            context.RegisterMapperBulder(ObservableCollectionMapperBuilder);
         }
     }
 }

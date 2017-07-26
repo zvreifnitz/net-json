@@ -18,13 +18,22 @@
 namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
 {
     using System;
+    using System.Reflection;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using Helper;
     using Parser;
     using Common;
 
-    internal abstract class ListMapperBuilderBase : JsonMapperBuilderBase
+    internal abstract class ListMapperBuilderBase : MapperBuilderBase
     {
+        protected abstract Type GenericTypeDefinition { get; }
+
+        protected sealed override bool IsRequestedTypeSupported(Type type)
+        {
+            return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == GenericTypeDefinition;
+        }
+        
         protected sealed class ListMapper<TListImpl, TList, TItem> : IJsonMapper<TList>
             where TList : IList<TItem>
             where TListImpl : TList, new()
@@ -138,6 +147,36 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
         private IJsonMapper<List<T>> BuildReflectionInvoke<T>(IJsonSerializator<T> serializator)
         {
             return new ListMapper<List<T>, List<T>, T>(serializator);
+        }
+    }
+    
+    internal sealed class CollectionMapperBuilder : ListMapperBuilderBase
+    {
+        protected override Type GenericTypeDefinition => typeof(Collection<>);
+
+        protected override Type[] GetMethodTypes(Type type, Type[] types)
+        {
+            return types;
+        }
+
+        private IJsonMapper<Collection<T>> BuildReflectionInvoke<T>(IJsonSerializator<T> serializator)
+        {
+            return new ListMapper<Collection<T>, Collection<T>, T>(serializator);
+        }
+    }
+    
+    internal sealed class ObservableCollectionMapperBuilder : ListMapperBuilderBase
+    {
+        protected override Type GenericTypeDefinition => typeof(ObservableCollection<>);
+
+        protected override Type[] GetMethodTypes(Type type, Type[] types)
+        {
+            return types;
+        }
+
+        private IJsonMapper<ObservableCollection<T>> BuildReflectionInvoke<T>(IJsonSerializator<T> serializator)
+        {
+            return new ListMapper<ObservableCollection<T>, ObservableCollection<T>, T>(serializator);
         }
     }
 }

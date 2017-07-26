@@ -21,21 +21,21 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Common
     using System.Linq;
     using System.Reflection;
     using Helper;
-    
-    internal abstract class JsonMapperBuilderBase : IJsonMapperBuilder
+
+    internal abstract class MapperBuilderBase : IJsonMapperBuilder
     {
         private readonly MethodInfo _buildReflectionInvoke;
 
-        protected JsonMapperBuilderBase()
+        protected MapperBuilderBase()
         {
             _buildReflectionInvoke = GetType().GetRuntimeMethods().Single(mi => mi.Name == "BuildReflectionInvoke");
         }
 
-        protected abstract Type GenericTypeDefinition { get; }
+        protected abstract bool IsRequestedTypeSupported(Type type);
 
         protected abstract Type[] GetMethodTypes(Type type, Type[] types);
 
-        protected virtual bool CheckTypes(Type[] types)
+        protected virtual bool CheckGenericTypeArgs(Type[] types)
         {
             return true;
         }
@@ -43,23 +43,30 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Common
         public bool CanBuild<T>(IJsonSerializators context)
         {
             var type = typeof(T);
-            var genTypeDef = type.GetGenericTypeDefinition();
-            if (genTypeDef != GenericTypeDefinition)
+            if (!IsRequestedTypeSupported(type))
             {
                 return false;
             }
-            return CheckAllGenericParameters(context, type.GenericTypeArguments);
+            var genericTypes = type.GenericTypeArguments;
+            if (!CheckGenericTypeArgs(genericTypes))
+            {
+                return false;
+            }
+            return CheckAllGenericParameters(context, genericTypes);
         }
 
         public IJsonMapper<T> Build<T>(IJsonSerializators context)
         {
             var type = typeof(T);
-            var genTypeDef = type.GetGenericTypeDefinition();
-            if (genTypeDef != GenericTypeDefinition)
+            if (!IsRequestedTypeSupported(type))
             {
                 return null;
             }
             var genericTypes = type.GenericTypeArguments;
+            if (!CheckGenericTypeArgs(genericTypes))
+            {
+                return null;
+            }
             var serializators = GetJsonSerializators(context, genericTypes);
             if (serializators == null)
             {
@@ -92,7 +99,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Common
                     return false;
                 }
             }
-            return CheckTypes(types);
+            return true;
         }
 
         private IJsonSerializator[] GetJsonSerializators(IJsonSerializators context, Type[] types)

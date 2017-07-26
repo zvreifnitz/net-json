@@ -17,17 +17,14 @@
 
 namespace JsonLibExample
 {
+    using System;
+    using System.Collections.Generic;
     using com.github.zvreifnitz.JsonLib;
 
-    public static class Program
+    public static class PerfComparison
     {
-        public static void Main(string[] args)
+        public static void Run(IJsonSerializators ctx)
         {
-            using (var ctx = JsonSerializationFactory.NewJsonSerializationContext())
-            {
-                Tests.Run(ctx);
-                PerfComparison.Run(ctx);
-            }
         }
     }
 }

@@ -20,17 +20,22 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Common
     using System;
     using System.Reflection;
     using Parser;
-    
-    internal sealed class NullableMapperBuilder : JsonMapperBuilderBase
+
+    internal sealed class NullableMapperBuilder : MapperBuilderBase
     {
-        protected override Type GenericTypeDefinition => typeof(Nullable<>);
+        private static readonly Type NullableType = typeof(Nullable<>);
+
+        protected override bool IsRequestedTypeSupported(Type type)
+        {
+            return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == NullableType;
+        }
 
         protected override Type[] GetMethodTypes(Type type, Type[] types)
         {
             return types;
         }
 
-        protected override bool CheckTypes(Type[] types)
+        protected override bool CheckGenericTypeArgs(Type[] types)
         {
             return types[0].GetTypeInfo().IsValueType;
         }

@@ -6,4 +6,7 @@
   <ItemGroup>
     <ProjectReference Include="..\JsonLib\JsonLib.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+  </ItemGroup>
 </Project>

@@ -15,11 +15,10 @@
  *
  */
 
-using System.Collections.Generic;
-
 namespace JsonLibExample
 {
     using System;
+    using System.Collections.Generic;
     using com.github.zvreifnitz.JsonLib;
 
     public static class Tests
@@ -39,6 +38,7 @@ namespace JsonLibExample
             ctx.TestListOfListOfString();
             ctx.TestDictionaryOfIntInt();
             ctx.TestDictionaryOfStringInt();
+            ctx.TestArray();
         }
 
         private static void TestString(this IJsonSerializators ctx)
@@ -299,7 +299,7 @@ namespace JsonLibExample
                 throw new Exception("TestDictionaryOfIntInt test 3 failed...");
             }
         }
-        
+
         private static void TestDictionaryOfStringInt(this IJsonSerializators ctx)
         {
             var serializator = ctx.GetJsonSerializator<Dictionary<string, int>>();
@@ -331,6 +331,37 @@ namespace JsonLibExample
                 throw new Exception("TestDictionaryOfStringInt test 3 failed...");
             }
         }
-        
+
+        private static void TestArray(this IJsonSerializators ctx)
+        {
+            var serializator = ctx.GetJsonSerializator<TimeSpan?[]>();
+
+            var input1 = new TimeSpan?[] {TimeSpan.FromMilliseconds(1), null, TimeSpan.FromMilliseconds(3)};
+            var json1 = serializator.ToJson(input1);
+            var output1 = serializator.FromJson(json1);
+
+            if (input1[0] != output1[0] || input1[1] != output1[1] || input1[2] != output1[2])
+            {
+                throw new Exception("TestArray test 1 failed...");
+            }
+
+            var input2 = new TimeSpan?[0];
+            var json2 = serializator.ToJson(input2);
+            var output2 = serializator.FromJson(json2);
+
+            if (input2.Length != output2.Length)
+            {
+                throw new Exception("TestArray test 2 failed...");
+            }
+
+            var input3 = (TimeSpan?[])null;
+            var json3 = serializator.ToJson(input3);
+            var output3 = serializator.FromJson(json3);
+
+            if (input3 != output3)
+            {
+                throw new Exception("TestArray test 3 failed...");
+            }
+        }
     }
 }
