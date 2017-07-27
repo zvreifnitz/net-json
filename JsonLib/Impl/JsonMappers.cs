@@ -23,9 +23,18 @@ namespace com.github.zvreifnitz.JsonLib.Impl
     using Mapper.Simple.Impl;
     using Mapper.Collection;
     using Mapper.Common;
+    using Json;
+    using Mapper.Json;
     
     internal static class JsonMappers
     {
+        private static readonly IJsonMapper<JsonElement> JsonElementMapper = new JsonElementMapper();
+        private static readonly IJsonMapper<JsonArray> JsonArrayMapper = new JsonArrayMapper();
+        private static readonly IJsonMapper<JsonBoolean> JsonBooleanMapper = new JsonBooleanMapper();
+        private static readonly IJsonMapper<JsonNull> JsonNullMapper = new JsonNullMapper();
+        private static readonly IJsonMapper<JsonNumber> JsonNumberMapper = new JsonNumberMapper();
+        private static readonly IJsonMapper<JsonObject> JsonObjectMapper = new JsonObjectMapper();
+        private static readonly IJsonMapper<JsonString> JsonStringMapper = new JsonStringMapper();
         private static readonly IJsonMapper<BigInteger> BigIntegerMapper = new JsonSimpleMapper<BigInteger>(new BigIntegerConverter());
         private static readonly IJsonMapper<bool> BooleanMapper = new JsonSimpleMapper<bool>(new BooleanConverter());
         private static readonly IJsonMapper<byte> ByteMapper = new JsonSimpleMapper<byte>(new ByteConverter());
@@ -48,6 +57,13 @@ namespace com.github.zvreifnitz.JsonLib.Impl
         
         internal static void RegisterDefaultMappers(this JsonSerializationContext context)
         {
+            context.RegisterMapper(JsonElementMapper);
+            context.RegisterMapper(JsonArrayMapper);
+            context.RegisterMapper(JsonBooleanMapper);
+            context.RegisterMapper(JsonNullMapper);
+            context.RegisterMapper(JsonNumberMapper);
+            context.RegisterMapper(JsonObjectMapper);
+            context.RegisterMapper(JsonStringMapper);
             context.RegisterMapper(BigIntegerMapper);
             context.RegisterMapper(BooleanMapper);
             context.RegisterMapper(ByteMapper);

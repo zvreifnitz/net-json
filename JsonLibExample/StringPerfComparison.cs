@@ -125,20 +125,19 @@ namespace JsonLibExample
 
         private static long SerializeTimeJsonLib(IJsonSerializators ctx)
         {
-            IJsonSerializator<string> serializator = ctx.GetJsonSerializator<string>();
             int warmCount = 10 * 1000;
             int testCount = 100 * 1000;
             string input = "ABC";
             List<String> output = new List<string>(warmCount + testCount);
             for (int i = 0; i < warmCount; i++)
             {
-                string json = serializator.ToJson(input);
+                string json = ctx.GetJsonSerializator<string>().ToJson(input);
                 output.Add(json);
             }
             long start = GC();
             for (int i = 0; i < testCount; i++)
             {
-                string json = serializator.ToJson(input);
+                string json = ctx.GetJsonSerializator<string>().ToJson(input);
                 output.Add(json);
             }
             long end = Ticks();
@@ -153,20 +152,19 @@ namespace JsonLibExample
 
         private static long DeserializeTimeJsonLib(IJsonSerializators ctx)
         {
-            IJsonSerializator<string> serializator = ctx.GetJsonSerializator<string>();
             int warmCount = 10 * 1000;
             int testCount = 100 * 1000;
             string input = "\"ABC\"";
             List<String> output = new List<string>(warmCount + testCount);
             for (int i = 0; i < warmCount; i++)
             {
-                string obj = serializator.FromJson(input);
+                string obj = ctx.GetJsonSerializator<string>().FromJson(input);
                 output.Add(obj);
             }
             long start = GC();
             for (int i = 0; i < testCount; i++)
             {
-                string obj = serializator.FromJson(input);
+                string obj = ctx.GetJsonSerializator<string>().FromJson(input);
                 output.Add(obj);
             }
             long end = Ticks();

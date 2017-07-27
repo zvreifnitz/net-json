@@ -25,6 +25,14 @@ namespace com.github.zvreifnitz.JsonLib.Helper
         private static readonly MethodInfo GetJsonSerializatorMethod =
             typeof(IJsonSerializators).GetRuntimeMethod("GetJsonSerializator", new Type[0]);
 
+        public static void ThrowIfNotMatch(IJsonReader reader, JsonToken token)
+        {
+            if (reader.GetNextToken() != token)
+            {
+                ExceptionHelper.ThrowInvalidJsonException<object>();
+            }
+        }
+        
         public static IJsonSerializator GetJsonSerializatorReflection(this IJsonSerializators serializators, Type type)
         {
             try

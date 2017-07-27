@@ -15,33 +15,15 @@
  *
  */
 
-namespace com.github.zvreifnitz.JsonLib
+namespace com.github.zvreifnitz.JsonLib.Mapper.Json
 {
-    using System;
+    using JsonLib.Json;
 
-    public sealed class JsonException : Exception
+    internal sealed class JsonObjectMapper : JsonElementMapperBase<JsonObject>
     {
-        public JsonExceptionType Type { get; }
-
-        public JsonException(JsonExceptionType type, string msg) : base(msg)
+        public override JsonObject FromJson(IJsonSerializators context, IJsonReader reader)
         {
-            Type = type;
+            return JsonObject.FromJson(context, reader);
         }
-
-        public JsonException(JsonExceptionType type, string msg, Exception exc) : base(msg, exc)
-        {
-            Type = type;
-        }
-    }
-
-    public enum JsonExceptionType
-    {
-        InvalidJson,
-        MapperNotRegistered,
-        TooManyBuilders,
-        Unexpected,
-        EndOfStream,
-        TypeMismatch,
-        NumberParsingFail
     }
 }

@@ -163,14 +163,6 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
                     ? _valueSerializator.Mapper.FromJson(context, reader)
                     : default(TValue);
             }
-
-            protected static void ThrowIfNotMatch(IJsonReader reader, JsonToken token)
-            {
-                if (reader.GetNextToken() != token)
-                {
-                    ExceptionHelper.ThrowInvalidJsonException<object>();
-                }
-            }
         }
 
         protected sealed class ObjectDictionaryMapper<TDictionaryImpl, TDictionary, TKey, TValue> :
@@ -198,7 +190,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
             protected override KeyValuePair<TKey, TValue> FromJsonItem(IJsonSerializators context, IJsonReader reader)
             {
                 TKey key = FromJsonKey(context, reader);
-                ThrowIfNotMatch(reader, JsonToken.Colon);
+                JsonSerializatorsHelper.ThrowIfNotMatch(reader, JsonToken.Colon);
                 TValue value = FromJsonValue(context, reader);
                 return new KeyValuePair<TKey, TValue>(key, value);
             }
@@ -230,11 +222,11 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
 
             protected override KeyValuePair<TKey, TValue> FromJsonItem(IJsonSerializators context, IJsonReader reader)
             {
-                ThrowIfNotMatch(reader, JsonToken.ArrayStart);
+                JsonSerializatorsHelper.ThrowIfNotMatch(reader, JsonToken.ArrayStart);
                 TKey key = FromJsonKey(context, reader);
-                ThrowIfNotMatch(reader, JsonToken.Comma);
+                JsonSerializatorsHelper.ThrowIfNotMatch(reader, JsonToken.Comma);
                 TValue value = FromJsonValue(context, reader);
-                ThrowIfNotMatch(reader, JsonToken.ArrayEnd);
+                JsonSerializatorsHelper.ThrowIfNotMatch(reader, JsonToken.ArrayEnd);
                 return new KeyValuePair<TKey, TValue>(key, value);
             }
         }

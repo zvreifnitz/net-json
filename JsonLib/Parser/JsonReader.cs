@@ -26,7 +26,6 @@ namespace com.github.zvreifnitz.JsonLib.Parser
     internal sealed class JsonReader : IJsonReader, IDisposable
     {
         private readonly TextReader _reader;
-        private readonly bool _strict;
         private readonly Stack<Mode> _modeStack;
         private readonly StringBuilder _intermediateValue;
         private char _prevChar;
@@ -36,14 +35,9 @@ namespace com.github.zvreifnitz.JsonLib.Parser
         private bool _moveToNextToken = true;
         private bool _moveToNextChar = true;
 
-        public JsonReader(TextReader reader) : this(reader, false)
-        {
-        }
-
-        public JsonReader(TextReader reader, bool strict)
+        public JsonReader(TextReader reader)
         {
             _reader = reader;
-            _strict = strict;
             _intermediateValue = new StringBuilder();
             _modeStack = new Stack<Mode>();
             _modeStack.Push(Mode.Unspecified);
@@ -293,12 +287,6 @@ namespace com.github.zvreifnitz.JsonLib.Parser
                     _modeStack.Push(Mode.Null);
                     _intermediateValue.Append(_currChar);
                     return null;
-                default:
-                    if (!_strict)
-                    {
-                        return null;
-                    }
-                    break;
             }
             return ExceptionHelper.ThrowInvalidJsonException<JsonToken>();
         }

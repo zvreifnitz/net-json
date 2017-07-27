@@ -15,6 +15,8 @@
  *
  */
 
+using com.github.zvreifnitz.JsonLib.Json;
+
 namespace com.github.zvreifnitz.JsonLib.Helper
 {
     using System;
@@ -23,9 +25,20 @@ namespace com.github.zvreifnitz.JsonLib.Helper
 
     public static class ExceptionHelper
     {
+        public static T ThrowJsonTypeMismatchException<T>(JsonType jsonTypeThis, JsonType jsonTypeOther)
+        {
+            throw new JsonException(JsonExceptionType.TypeMismatch,
+                string.Format("Json value '{0}' could not be converted to '{1}'", jsonTypeThis, jsonTypeOther));
+        }
+
         public static T ThrowInvalidJsonException<T>()
         {
             throw new JsonException(JsonExceptionType.InvalidJson, "Invalid JSON input");
+        }
+        
+        public static T ThrowNumberParsingFailException<T>()
+        {
+            throw new JsonException(JsonExceptionType.NumberParsingFail, "JSON number parsing failed");
         }
 
         public static IJsonSerializator<T> ThrowMapperNotRegisteredException<T>()

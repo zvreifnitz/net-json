@@ -19,8 +19,6 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
 {
     using System;
     using System.Collections.Generic;
-    using Helper;
-    using Parser;
     using Common;
 
     internal sealed class ArrayMapperBuilder : DelegatingMapperBuilderBase
