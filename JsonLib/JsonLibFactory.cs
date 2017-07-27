@@ -17,19 +17,24 @@
 
 namespace com.github.zvreifnitz.JsonLib
 {
-    using System;
+    using Impl;
+    using Mapper.Object;
 
-    public interface IJsonSerializators
+    public static class JsonLibFactory
     {
-        IJsonSerializator<T> GetJsonSerializator<T>();
-    }
+        public static IJsonSerializatorsBuilder NewSerializatorsBuilder()
+        {
+            return new JsonSerializatorsBuilder();
+        }
 
-    public interface IJsonSerializationContext : IJsonSerializators, IDisposable
-    {
-        bool RegisterMapper<T>(IJsonMapper<T> mapper);
-        bool UnregisterMapper<T>();
-        bool RegisterMapperBulder<T>(T builder) where T : IJsonMapperBuilder;
-        bool UnregisterMapperBulder<T>() where T : IJsonMapperBuilder;
-        IJsonSerializationContext Clone();
+        public static IObjectMapperBuilder<T> NewObjectMapperBuilder<T>()
+        {
+            return new ObjectMapperBuilder<T>();
+        }
+
+        public static IJsonMapper<T> DefaultMapper<T>()
+        {
+            return ReflectionMapperBuilder.Build<T>();
+        }
     }
 }

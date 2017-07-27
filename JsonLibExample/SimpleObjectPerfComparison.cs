@@ -21,11 +21,18 @@ namespace JsonLibExample
     using System;
     using com.github.zvreifnitz.JsonLib;
 
-    public class StringPerfComparison : PerfComparisonBase
+    public class SimpleObjecttPerfComparison : PerfComparisonBase
     {
-        private const string CleanValue =  "ABC";
-        private const string JsonValue =  "\"ABC\"";
-        
+        private static readonly SimpleObject CleanValue =
+            new SimpleObject
+            {
+                IntValue = 1,
+                GuidValue = Guid.Parse("a50229d4-220d-481e-969e-772f3797ae85"),
+                StringValue = "ABC"
+            };
+
+        private static readonly string JsonValue = CleanValue.ToString();
+
         public override void Run(IJsonSerializators ctx)
         {
             long serNewtonsoftJson = 0L;
@@ -43,9 +50,9 @@ namespace JsonLibExample
             }
 
             long deserNewtonsoftJson = 0L;
-            string deserNewtonsoftJsonExample = null;
+            SimpleObject deserNewtonsoftJsonExample = null;
             long deserJsonLib = 0L;
-            string deserJsonLibExample = null;
+            SimpleObject deserJsonLibExample = null;
             for (int i = 0; i < 10; i++)
             {
                 var njResult = DeserializeTimeNewtonsoftJson();
@@ -84,25 +91,25 @@ namespace JsonLibExample
 
         private Tuple<long, string> SerializeTimeNewtonsoftJson()
         {
-            SerializeDelegate<string> serializer = JsonConvert.SerializeObject;
+            SerializeDelegate<SimpleObject> serializer = JsonConvert.SerializeObject;
             return SerializeTime(serializer, CleanValue);
         }
 
-        private Tuple<long, string> DeserializeTimeNewtonsoftJson()
+        private Tuple<long, SimpleObject> DeserializeTimeNewtonsoftJson()
         {
-            DeserializeDelegate<string> deserializer = JsonConvert.DeserializeObject<string>;
+            DeserializeDelegate<SimpleObject> deserializer = JsonConvert.DeserializeObject<SimpleObject>;
             return DeserializeTime(deserializer, JsonValue);
         }
 
         private Tuple<long, string> SerializeTimeJsonLib(IJsonSerializators ctx)
         {
-            SerializeDelegate<string> serializer = ctx.GetJsonSerializator<string>().ToJson;
+            SerializeDelegate<SimpleObject> serializer = ctx.GetJsonSerializator<SimpleObject>().ToJson;
             return SerializeTime(serializer, CleanValue);
         }
 
-        private Tuple<long, string> DeserializeTimeJsonLib(IJsonSerializators ctx)
+        private Tuple<long, SimpleObject> DeserializeTimeJsonLib(IJsonSerializators ctx)
         {
-            DeserializeDelegate<string> deserializer = ctx.GetJsonSerializator<string>().FromJson;
+            DeserializeDelegate<SimpleObject> deserializer = ctx.GetJsonSerializator<SimpleObject>().FromJson;
             return DeserializeTime(deserializer, JsonValue);
         }
     }

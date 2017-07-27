@@ -15,24 +15,18 @@
  *
  */
 
-namespace com.github.zvreifnitz.JsonLib.Mapper.Json
+namespace com.github.zvreifnitz.JsonLib.Mapper.Object
 {
-    using JsonLib.Json;
+    using System.Collections.Generic;
     using Helper;
-
-    internal sealed class JsonStringMapper : JsonElementMapperBase<JsonString>
+    
+    internal static class ReflectionMapperBuilder
     {
-        public override JsonString FromJson(IJsonSerializators context, IJsonReader reader)
+        internal static IJsonMapper<T> Build<T>()
         {
-            switch (reader.GetNextToken())
-            {
-                case JsonToken.Null:
-                    return null;
-                case JsonToken.String:
-                    return new JsonString(reader.ReadValue());
-                default:
-                    return ExceptionHelper.ThrowInvalidJsonException<JsonString>();
-            }
+            return new ObjectMapper<T>(
+                ExpressionHelper.CreateDefaultConstructor<T>(),
+                new Dictionary<string, IJsonGetterSetter<T>>());
         }
     }
 }

@@ -55,7 +55,7 @@ namespace com.github.zvreifnitz.JsonLib.Impl
         private static readonly IJsonMapper<ulong> ULongMapper = new JsonSimpleMapper<ulong>(new ULongConverter());
         private static readonly IJsonMapper<ushort> UShortMapper = new JsonSimpleMapper<ushort>(new UShortConverter());
         
-        internal static void RegisterDefaultMappers(this JsonSerializationContext context)
+        internal static void RegisterDefaultMappers(this JsonSerializatorsBuilder context)
         {
             context.RegisterMapper(JsonElementMapper);
             context.RegisterMapper(JsonArrayMapper);
@@ -100,7 +100,7 @@ namespace com.github.zvreifnitz.JsonLib.Impl
         private static readonly IJsonMapperBuilder CollectionMapperBuilder = new CollectionMapperBuilder();
         private static readonly IJsonMapperBuilder ObservableCollectionMapperBuilder = new ObservableCollectionMapperBuilder();
         
-        internal static void RegisterDefaultBuilders(this JsonSerializationContext context)
+        internal static void RegisterDefaultBuilders(this JsonSerializatorsBuilder context)
         {
             context.RegisterMapperBulder(ArrayMapperBuilder);
             context.RegisterMapperBulder(NullableMapperBuilder);

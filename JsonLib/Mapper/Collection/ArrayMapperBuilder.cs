@@ -47,25 +47,29 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
 
         private sealed class ArrayMapper<T> : IJsonMapper<T[]>
         {
-            private readonly IJsonSerializator<List<T>> _serializator;
+            private readonly IJsonMapper<List<T>> _mapper;
 
             public ArrayMapper(IJsonSerializator<List<T>> serializator)
             {
-                _serializator = serializator;
+                _mapper = serializator.Mapper;
             }
 
             public bool CanSerialize => true;
 
             public bool CanDeserialize => true;
 
+            public void Init(IJsonSerializators context)
+            {
+            }
+
             public void ToJson(IJsonSerializators context, IJsonWriter writer, T[] instance)
             {
-                _serializator.Mapper.ToJson(context, writer, instance == null ? null : new List<T>(instance));
+                _mapper.ToJson(context, writer, instance == null ? null : new List<T>(instance));
             }
 
             public T[] FromJson(IJsonSerializators context, IJsonReader reader)
             {
-                List<T> result = _serializator.Mapper.FromJson(context, reader);
+                var result = _mapper.FromJson(context, reader);
                 return result?.ToArray();
             }
         }

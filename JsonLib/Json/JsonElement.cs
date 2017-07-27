@@ -15,12 +15,12 @@
  *
  */
 
-using System.Collections.Generic;
-using System.Numerics;
-using com.github.zvreifnitz.JsonLib.Helper;
-
 namespace com.github.zvreifnitz.JsonLib.Json
 {
+    using System.Collections.Generic;
+    using System.Numerics;
+    using Helper;
+
     public abstract class JsonElement
     {
         public abstract JsonType Type { get; }
@@ -71,32 +71,8 @@ namespace com.github.zvreifnitz.JsonLib.Json
             return ExceptionHelper.ThrowJsonTypeMismatchException<BigInteger>(Type, JsonType.Number);
         }
 
-        internal abstract void ToJson(IJsonSerializators context, IJsonWriter writer);
-
-        internal static JsonElement FromJson(IJsonSerializators context, IJsonReader reader)
-        {
-            switch (reader.GetNextToken())
-            {
-                case JsonToken.ObjectStart:
-                    reader.RepeatLastToken();
-                    return JsonObject.FromJson(context, reader);
-                case JsonToken.String:
-                    return new JsonString(reader.ReadValue());
-                case JsonToken.False:
-                    return JsonBoolean.False;
-                case JsonToken.True:
-                    return JsonBoolean.True;
-                case JsonToken.Null:
-                    return JsonNull.Null;
-                case JsonToken.Number:
-                    return JsonNull.Null;
-                case JsonToken.ArrayStart:
-                    reader.RepeatLastToken();
-                    return JsonArray.FromJson(context, reader);
-                default:
-                    return ExceptionHelper.ThrowInvalidJsonException<JsonElement>();
-            }
-        }
+        internal abstract void ToJson(
+            IJsonSerializators context, IJsonWriter writer, IJsonMapper<JsonElement> elMapper);
     }
 
     public enum JsonType

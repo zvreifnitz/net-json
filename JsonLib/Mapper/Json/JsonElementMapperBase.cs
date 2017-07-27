@@ -22,9 +22,20 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Json
 
     internal abstract class JsonElementMapperBase<T> : IJsonMapper<T> where T : JsonElement
     {
+        protected IJsonMapper<JsonElement> JsonElementMapper;
+        protected IJsonMapper<JsonArray> JsonArrayMapper;
+        protected IJsonMapper<JsonObject> JsonObjectMapper;
+
         public bool CanSerialize => true;
 
         public bool CanDeserialize => true;
+
+        public void Init(IJsonSerializators context)
+        {
+            JsonElementMapper = context.GetJsonSerializator<JsonElement>().Mapper;
+            JsonArrayMapper = context.GetJsonSerializator<JsonArray>().Mapper;
+            JsonObjectMapper = context.GetJsonSerializator<JsonObject>().Mapper;
+        }
 
         public void ToJson(IJsonSerializators context, IJsonWriter writer, T instance)
         {
@@ -34,7 +45,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Json
             }
             else
             {
-                instance.ToJson(context, writer);
+                instance.ToJson(context, writer, JsonElementMapper);
             }
         }
 

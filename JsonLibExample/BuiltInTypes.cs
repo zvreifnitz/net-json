@@ -21,7 +21,7 @@ namespace JsonLibExample
     using System.Collections.Generic;
     using com.github.zvreifnitz.JsonLib;
 
-    public static class Tests
+    public static class BuiltInTypes
     {
         public static void Run(IJsonSerializators ctx)
         {

@@ -18,12 +18,23 @@
 namespace com.github.zvreifnitz.JsonLib.Mapper.Json
 {
     using JsonLib.Json;
+    using Helper;
 
     internal sealed class JsonBooleanMapper : JsonElementMapperBase<JsonBoolean>
     {
         public override JsonBoolean FromJson(IJsonSerializators context, IJsonReader reader)
         {
-            return JsonBoolean.FromJson(context, reader);
+            switch (reader.GetNextToken())
+            {
+                case JsonToken.Null:
+                    return null;
+                case JsonToken.False:
+                    return JsonBoolean.False;
+                case JsonToken.True:
+                    return JsonBoolean.True;
+                default:
+                    return ExceptionHelper.ThrowInvalidJsonException<JsonBoolean>();
+            }
         }
     }
 }

@@ -35,7 +35,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
         {
             return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == GenericTypeDefinition;
         }
-        
+
         protected abstract class
             DictionaryMapperBase<TDictionaryImpl, TDictionary, TKey, TValue> : IJsonMapper<TDictionary>
             where TDictionary : IDictionary<TKey, TValue>
@@ -46,8 +46,8 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
 
             protected abstract KeyValuePair<TKey, TValue> FromJsonItem(IJsonSerializators context, IJsonReader reader);
 
-            private readonly IJsonSerializator<TKey> _keySerializator;
-            private readonly IJsonSerializator<TValue> _valueSerializator;
+            private readonly IJsonMapper<TKey> _keyMapper;
+            private readonly IJsonMapper<TValue> _valueMapper;
             private readonly string _startLiteral;
             private readonly string _endLiteral;
             private readonly JsonToken _startToken;
@@ -57,8 +57,8 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
                 IJsonSerializator<TKey> keySerializator, IJsonSerializator<TValue> valueSerializator,
                 string startLiteral, string endLiteral, JsonToken startToken, JsonToken endToken)
             {
-                _keySerializator = keySerializator;
-                _valueSerializator = valueSerializator;
+                _keyMapper = keySerializator.Mapper;
+                _valueMapper = valueSerializator.Mapper;
                 _startLiteral = startLiteral;
                 _endLiteral = endLiteral;
                 _startToken = startToken;
@@ -68,6 +68,10 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
             public bool CanSerialize => true;
 
             public bool CanDeserialize => true;
+
+            public void Init(IJsonSerializators context)
+            {
+            }
 
             public void ToJson(IJsonSerializators context, IJsonWriter writer, TDictionary instance)
             {
@@ -128,9 +132,9 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
 
             protected void ToJsonKey(IJsonSerializators context, IJsonWriter writer, TKey instance)
             {
-                if (_keySerializator.Mapper.CanSerialize)
+                if (_keyMapper.CanSerialize)
                 {
-                    _keySerializator.Mapper.ToJson(context, writer, instance);
+                    _keyMapper.ToJson(context, writer, instance);
                 }
                 else
                 {
@@ -140,9 +144,9 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
 
             protected void ToJsonValue(IJsonSerializators context, IJsonWriter writer, TValue instance)
             {
-                if (_valueSerializator.Mapper.CanSerialize)
+                if (_valueMapper.CanSerialize)
                 {
-                    _valueSerializator.Mapper.ToJson(context, writer, instance);
+                    _valueMapper.ToJson(context, writer, instance);
                 }
                 else
                 {
@@ -152,15 +156,15 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
 
             protected TKey FromJsonKey(IJsonSerializators context, IJsonReader reader)
             {
-                return _keySerializator.Mapper.CanDeserialize
-                    ? _keySerializator.Mapper.FromJson(context, reader)
+                return _keyMapper.CanDeserialize
+                    ? _keyMapper.FromJson(context, reader)
                     : default(TKey);
             }
 
             protected TValue FromJsonValue(IJsonSerializators context, IJsonReader reader)
             {
-                return _valueSerializator.Mapper.CanDeserialize
-                    ? _valueSerializator.Mapper.FromJson(context, reader)
+                return _valueMapper.CanDeserialize
+                    ? _valueMapper.FromJson(context, reader)
                     : default(TValue);
             }
         }
@@ -275,7 +279,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
                 keySerializator, valueSerializator);
         }
     }
-    
+
     internal sealed class ConcurrentDictionaryMapperBuilder : DictionaryMapperBuilderBase
     {
         protected override Type GenericTypeDefinition => typeof(ConcurrentDictionary<,>);
@@ -290,14 +294,16 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
         {
             if (typeof(TKey) == StringType)
             {
-                return new ObjectDictionaryMapper<ConcurrentDictionary<TKey, TValue>, ConcurrentDictionary<TKey, TValue>, TKey, TValue>(
+                return new ObjectDictionaryMapper<ConcurrentDictionary<TKey, TValue>, ConcurrentDictionary<TKey, TValue>
+                    , TKey, TValue>(
                     keySerializator, valueSerializator);
             }
-            return new ArrayDictionaryMapper<ConcurrentDictionary<TKey, TValue>, ConcurrentDictionary<TKey, TValue>, TKey, TValue>(
+            return new ArrayDictionaryMapper<ConcurrentDictionary<TKey, TValue>, ConcurrentDictionary<TKey, TValue>,
+                TKey, TValue>(
                 keySerializator, valueSerializator);
         }
     }
-    
+
     internal sealed class SortedDictionaryMapperBuilder : DictionaryMapperBuilderBase
     {
         protected override Type GenericTypeDefinition => typeof(SortedDictionary<,>);
@@ -312,14 +318,16 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
         {
             if (typeof(TKey) == StringType)
             {
-                return new ObjectDictionaryMapper<SortedDictionary<TKey, TValue>, SortedDictionary<TKey, TValue>, TKey, TValue>(
+                return new ObjectDictionaryMapper<SortedDictionary<TKey, TValue>, SortedDictionary<TKey, TValue>, TKey,
+                    TValue>(
                     keySerializator, valueSerializator);
             }
-            return new ArrayDictionaryMapper<SortedDictionary<TKey, TValue>, SortedDictionary<TKey, TValue>, TKey, TValue>(
+            return new ArrayDictionaryMapper<SortedDictionary<TKey, TValue>, SortedDictionary<TKey, TValue>, TKey,
+                TValue>(
                 keySerializator, valueSerializator);
         }
     }
-    
+
     internal sealed class SortedListMapperBuilder : DictionaryMapperBuilderBase
     {
         protected override Type GenericTypeDefinition => typeof(SortedList<,>);

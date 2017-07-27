@@ -17,13 +17,40 @@
 
 namespace com.github.zvreifnitz.JsonLib.Mapper.Json
 {
+    using System.Globalization;
+    using System.Numerics;
+    using Helper;
     using JsonLib.Json;
 
     internal sealed class JsonNumberMapper : JsonElementMapperBase<JsonNumber>
     {
         public override JsonNumber FromJson(IJsonSerializators context, IJsonReader reader)
         {
-            return JsonNumber.FromJson(context, reader);
+            switch (reader.GetNextToken())
+            {
+                case JsonToken.Null:
+                    return null;
+                case JsonToken.Number:
+                    var value = reader.ReadValue();
+                    if (double.TryParse(
+                        value, NumberStyles.Float, CultureInfo.InvariantCulture, out double doubleOut))
+                    {
+                        return new JsonNumber(doubleOut);
+                    }
+                    if (long.TryParse(
+                        value, NumberStyles.Integer, CultureInfo.InvariantCulture, out long longOut))
+                    {
+                        return new JsonNumber(longOut);
+                    }
+                    if (BigInteger.TryParse(
+                        value, NumberStyles.Integer, CultureInfo.InvariantCulture, out BigInteger bigIntegerOut))
+                    {
+                        return new JsonNumber(bigIntegerOut);
+                    }
+                    return ExceptionHelper.ThrowNumberParsingFailException<JsonNumber>();
+                default:
+                    return ExceptionHelper.ThrowInvalidJsonException<JsonNumber>();
+            }
         }
     }
 }

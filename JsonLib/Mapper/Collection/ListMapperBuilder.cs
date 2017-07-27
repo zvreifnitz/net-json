@@ -33,21 +33,25 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
         {
             return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == GenericTypeDefinition;
         }
-        
+
         protected sealed class ListMapper<TListImpl, TList, TItem> : IJsonMapper<TList>
             where TList : IList<TItem>
             where TListImpl : TList, new()
         {
-            private readonly IJsonSerializator<TItem> _serializator;
+            private readonly IJsonMapper<TItem> _mapper;
 
             public ListMapper(IJsonSerializator<TItem> serializator)
             {
-                _serializator = serializator;
+                _mapper = serializator.Mapper;
             }
 
             public bool CanSerialize => true;
 
             public bool CanDeserialize => true;
+
+            public void Init(IJsonSerializators context)
+            {
+            }
 
             public void ToJson(IJsonSerializators context, IJsonWriter writer, TList instance)
             {
@@ -73,9 +77,9 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
 
             private void ToJsonItem(IJsonSerializators context, IJsonWriter writer, TItem instance)
             {
-                if (_serializator.Mapper.CanSerialize)
+                if (_mapper.CanSerialize)
                 {
-                    _serializator.Mapper.ToJson(context, writer, instance);
+                    _mapper.ToJson(context, writer, instance);
                 }
                 else
                 {
@@ -113,8 +117,8 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
 
             private TItem FromJsonItem(IJsonSerializators context, IJsonReader reader)
             {
-                return _serializator.Mapper.CanDeserialize
-                    ? _serializator.Mapper.FromJson(context, reader)
+                return _mapper.CanDeserialize
+                    ? _mapper.FromJson(context, reader)
                     : default(TItem);
             }
         }
@@ -149,7 +153,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
             return new ListMapper<List<T>, List<T>, T>(serializator);
         }
     }
-    
+
     internal sealed class CollectionMapperBuilder : ListMapperBuilderBase
     {
         protected override Type GenericTypeDefinition => typeof(Collection<>);
@@ -164,7 +168,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
             return new ListMapper<Collection<T>, Collection<T>, T>(serializator);
         }
     }
-    
+
     internal sealed class ObservableCollectionMapperBuilder : ListMapperBuilderBase
     {
         protected override Type GenericTypeDefinition => typeof(ObservableCollection<>);

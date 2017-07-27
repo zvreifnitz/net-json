@@ -18,12 +18,16 @@
 namespace com.github.zvreifnitz.JsonLib.Mapper.Json
 {
     using JsonLib.Json;
+    using Helper;
+    using Parser;
 
     internal sealed class JsonNullMapper : JsonElementMapperBase<JsonNull>
     {
         public override JsonNull FromJson(IJsonSerializators context, IJsonReader reader)
         {
-            return JsonNull.FromJson(context, reader);
+            return reader.GetNextToken() == JsonToken.Null
+                ? JsonNull.Null
+                : ExceptionHelper.ThrowInvalidJsonException<JsonNull>();
         }
     }
 }

@@ -23,13 +23,17 @@ namespace com.github.zvreifnitz.JsonLib.Impl
 
     internal sealed class JsonSerializator<T> : IJsonSerializator<T>
     {
-        private readonly IJsonSerializationContext _context;
+        private readonly IJsonSerializators _context;
 
-        internal JsonSerializator(IJsonSerializationContext context, IJsonMapper<T> mapper)
+        internal JsonSerializator(IJsonSerializators context, IJsonMapper<T> mapper)
         {
             _context = context;
             Mapper = mapper;
         }
+
+        public bool CanSerialize => Mapper.CanSerialize;
+
+        public bool CanDeserialize => Mapper.CanDeserialize;
 
         public IJsonMapper<T> Mapper { get; }
 

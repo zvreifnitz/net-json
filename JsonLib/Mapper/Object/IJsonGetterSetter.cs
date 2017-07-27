@@ -15,24 +15,12 @@
  *
  */
 
-namespace com.github.zvreifnitz.JsonLib.Json
+namespace com.github.zvreifnitz.JsonLib.Mapper.Object
 {
-    using Parser;
-
-    public sealed class JsonNull : JsonElement
+    internal interface IJsonGetterSetter<in TClass>
     {
-        public static readonly JsonNull Null = new JsonNull();
-
-        private JsonNull()
-        {
-        }
-
-        public override JsonType Type => JsonType.Null;
-
-        internal override void ToJson(
-            IJsonSerializators context, IJsonWriter writer, IJsonMapper<JsonElement> elMapper)
-        {
-            writer.WriteRaw(JsonLiterals.Null);
-        }
+        void Init(IJsonSerializators context);
+        void ToJson(IJsonSerializators context, IJsonWriter writer, TClass instance);
+        void FromJson(IJsonSerializators context, IJsonReader reader, TClass instance);
     }
 }

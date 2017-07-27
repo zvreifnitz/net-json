@@ -18,7 +18,6 @@
 namespace com.github.zvreifnitz.JsonLib.Json
 {
     using System.Collections.Generic;
-    using Helper;
     using Parser;
 
     public sealed class JsonObject : JsonElement
@@ -32,13 +31,12 @@ namespace com.github.zvreifnitz.JsonLib.Json
             return _objectMembers;
         }
 
-        internal override void ToJson(IJsonSerializators context, IJsonWriter writer)
+        internal override void ToJson(
+            IJsonSerializators context, IJsonWriter writer, IJsonMapper<JsonElement> elMapper)
         {
             writer.WriteRaw(JsonLiterals.ObjectStart);
             if (_objectMembers.Count > 0)
             {
-                var keySerializator = context.GetJsonSerializator<string>();
-                var valueSerializator = context.GetJsonSerializator<JsonElement>();
                 var addComma = false;
                 foreach (var member in _objectMembers)
                 {
@@ -50,45 +48,12 @@ namespace com.github.zvreifnitz.JsonLib.Json
                     {
                         addComma = true;
                     }
-                    keySerializator.Mapper.ToJson(context, writer, member.Key);
+                    writer.WriteRaw(member.Key.EncodeToJsonString());
                     writer.WriteRaw(JsonLiterals.Colon);
-                    valueSerializator.Mapper.ToJson(context, writer, member.Value);
+                    elMapper.ToJson(context, writer, member.Value);
                 }
             }
             writer.WriteRaw(JsonLiterals.ObjectEnd);
-        }
-
-        internal new static JsonObject FromJson(IJsonSerializators context, IJsonReader reader)
-        {
-            var token = reader.GetNextToken();
-            if (token == JsonToken.Null)
-            {
-                return null;
-            }
-            if (token != JsonToken.ObjectStart)
-            {
-                return ExceptionHelper.ThrowInvalidJsonException<JsonObject>();
-            }
-            var keySerializator = context.GetJsonSerializator<string>();
-            var valueSerializator = context.GetJsonSerializator<JsonElement>();
-            var result = new JsonObject();
-            while (true)
-            {
-                token = reader.GetNextToken();
-                if (token == JsonToken.ObjectEnd)
-                {
-                    break;
-                }
-                if (token != JsonToken.Comma)
-                {
-                    reader.RepeatLastToken();
-                }
-                var key = keySerializator.Mapper.FromJson(context, reader);
-                JsonSerializatorsHelper.ThrowIfNotMatch(reader, JsonToken.Colon);
-                var value = valueSerializator.Mapper.FromJson(context, reader);
-                result._objectMembers.Add(key, value);
-            }
-            return result;
         }
     }
 }

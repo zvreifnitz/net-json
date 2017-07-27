@@ -47,16 +47,20 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Common
 
         private sealed class NullableJsonMapper<T> : IJsonMapper<T?> where T : struct
         {
-            private readonly IJsonSerializator<T> _serializator;
+            private readonly IJsonMapper<T> _mapper;
 
             public NullableJsonMapper(IJsonSerializator<T> serializator)
             {
-                _serializator = serializator;
+                _mapper = serializator.Mapper;
             }
 
             public bool CanSerialize => true;
 
             public bool CanDeserialize => true;
+
+            public void Init(IJsonSerializators context)
+            {
+            }
 
             public void ToJson(IJsonSerializators context, IJsonWriter writer, T? instance)
             {
@@ -66,19 +70,19 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Common
                 }
                 else
                 {
-                    _serializator.Mapper.ToJson(context, writer, instance.Value);
+                    _mapper.ToJson(context, writer, instance.Value);
                 }
             }
 
             public T? FromJson(IJsonSerializators context, IJsonReader reader)
             {
-                JsonToken token = reader.GetNextToken();
+                var token = reader.GetNextToken();
                 if (token == JsonToken.Null)
                 {
                     return null;
                 }
                 reader.RepeatLastToken();
-                return _serializator.Mapper.FromJson(context, reader);
+                return _mapper.FromJson(context, reader);
             }
         }
     }

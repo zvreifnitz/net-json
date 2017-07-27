@@ -52,88 +52,55 @@ namespace com.github.zvreifnitz.JsonLib.Json
 
         public override JsonType Type => JsonType.Number;
 
+        public override string GetStringValue()
+        {
+            return _value;
+        }
+
         public override int GetIntValue()
         {
-            if (int.TryParse(
-                _value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int value))
-            {
-                return value;
-            }
-            return ExceptionHelper.ThrowNumberParsingFailException<int>();
+            return int.TryParse(
+                _value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int value)
+                ? value
+                : ExceptionHelper.ThrowNumberParsingFailException<int>();
         }
 
         public override long GetLongValue()
         {
-            if (long.TryParse(
-                _value, NumberStyles.Integer, CultureInfo.InvariantCulture, out long value))
-            {
-                return value;
-            }
-            return ExceptionHelper.ThrowNumberParsingFailException<long>();
+            return long.TryParse(
+                _value, NumberStyles.Integer, CultureInfo.InvariantCulture, out long value)
+                ? value
+                : ExceptionHelper.ThrowNumberParsingFailException<long>();
         }
 
         public override double GetDoubleValue()
         {
-            if (double.TryParse(
-                _value, NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
-            {
-                return value;
-            }
-            return ExceptionHelper.ThrowNumberParsingFailException<double>();
+            return double.TryParse(
+                _value, NumberStyles.Float, CultureInfo.InvariantCulture, out double value)
+                ? value
+                : ExceptionHelper.ThrowNumberParsingFailException<double>();
         }
 
         public override decimal GetDecimalValue()
         {
-            if (decimal.TryParse(
-                _value, NumberStyles.Float, CultureInfo.InvariantCulture, out decimal value))
-            {
-                return value;
-            }
-            return ExceptionHelper.ThrowNumberParsingFailException<decimal>();
+            return decimal.TryParse(
+                _value, NumberStyles.Float, CultureInfo.InvariantCulture, out decimal value)
+                ? value
+                : ExceptionHelper.ThrowNumberParsingFailException<decimal>();
         }
 
         public override BigInteger GetBigIntegerValue()
         {
-            if (BigInteger.TryParse(
-                _value, NumberStyles.Integer, CultureInfo.InvariantCulture, out BigInteger value))
-            {
-                return value;
-            }
-            return ExceptionHelper.ThrowNumberParsingFailException<BigInteger>();
+            return BigInteger.TryParse(
+                _value, NumberStyles.Integer, CultureInfo.InvariantCulture, out BigInteger value)
+                ? value
+                : ExceptionHelper.ThrowNumberParsingFailException<BigInteger>();
         }
 
-        internal override void ToJson(IJsonSerializators context, IJsonWriter writer)
+        internal override void ToJson(
+            IJsonSerializators context, IJsonWriter writer, IJsonMapper<JsonElement> elMapper)
         {
             writer.WriteRaw(_value);
-        }
-
-        internal new static JsonNumber FromJson(IJsonSerializators context, IJsonReader reader)
-        {
-            switch (reader.GetNextToken())
-            {
-                case JsonToken.Null:
-                    return null;
-                case JsonToken.Number:
-                    var value = reader.ReadValue();
-                    if (double.TryParse(
-                        value, NumberStyles.Float, CultureInfo.InvariantCulture, out double doubleOut))
-                    {
-                        return new JsonNumber(doubleOut);
-                    }
-                    if (long.TryParse(
-                        value, NumberStyles.Integer, CultureInfo.InvariantCulture, out long longOut))
-                    {
-                        return new JsonNumber(longOut);
-                    }
-                    if (BigInteger.TryParse(
-                        value, NumberStyles.Integer, CultureInfo.InvariantCulture, out BigInteger bigIntegerOut))
-                    {
-                        return new JsonNumber(bigIntegerOut);
-                    }
-                    return ExceptionHelper.ThrowNumberParsingFailException<JsonNumber>();
-                default:
-                    return ExceptionHelper.ThrowInvalidJsonException<JsonNumber>();
-            }
         }
     }
 }

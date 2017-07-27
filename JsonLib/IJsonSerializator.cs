@@ -22,6 +22,8 @@ namespace com.github.zvreifnitz.JsonLib
 
     public interface IJsonSerializator
     {
+        bool CanSerialize { get; }
+        bool CanDeserialize { get; }
     }
 
     public interface IJsonSerializator<T> : IJsonSerializator

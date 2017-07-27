@@ -17,7 +17,6 @@
 
 namespace com.github.zvreifnitz.JsonLib.Json
 {
-    using Helper;
     using Parser;
 
     public sealed class JsonString : JsonElement
@@ -36,7 +35,8 @@ namespace com.github.zvreifnitz.JsonLib.Json
             return _value;
         }
 
-        internal override void ToJson(IJsonSerializators context, IJsonWriter writer)
+        internal override void ToJson(
+            IJsonSerializators context, IJsonWriter writer, IJsonMapper<JsonElement> elMapper)
         {
             if (_value == null)
             {
@@ -45,19 +45,6 @@ namespace com.github.zvreifnitz.JsonLib.Json
             else
             {
                 writer.EncodeAndWrite(_value);
-            }
-        }
-
-        internal new static JsonString FromJson(IJsonSerializators context, IJsonReader reader)
-        {
-            switch (reader.GetNextToken())
-            {
-                case JsonToken.Null:
-                    return null;
-                case JsonToken.String:
-                    return new JsonString(reader.ReadValue());
-                default:
-                    return ExceptionHelper.ThrowInvalidJsonException<JsonString>();
             }
         }
     }

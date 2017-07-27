@@ -1,29 +1,13 @@
-﻿/*
- * (C) Copyright 2017 zvreifnitz
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Threading;
+using com.github.zvreifnitz.JsonLib.Helper;
 
 namespace com.github.zvreifnitz.JsonLib.Impl
 {
-    using System.Linq;
-    using System.Threading;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using Helper;
-
-    internal sealed class JsonSerializationContext : IJsonSerializationContext
+    internal sealed class JsonSerializators : IJsonSerializators
     {
         private static int _idSeed;
 
@@ -32,14 +16,9 @@ namespace com.github.zvreifnitz.JsonLib.Impl
         private readonly List<IWrapper> _mapperWrappers = new List<IWrapper>();
         private readonly List<IWrapper> _mapperBuilders = new List<IWrapper>();
         private bool _disposed;
+        private bool _frozen;
 
-        internal JsonSerializationContext()
-        {
-            this.RegisterDefaultMappers();
-            this.RegisterDefaultBuilders();
-        }
-
-        public bool RegisterMapper<T>(IJsonMapper<T> mapper)
+        internal bool RegisterMapper<T>(IJsonMapper<T> mapper)
         {
             if (mapper == null)
             {
@@ -47,7 +26,7 @@ namespace com.github.zvreifnitz.JsonLib.Impl
             }
             lock (_lock)
             {
-                if (_disposed)
+                if (_frozen || _disposed)
                 {
                     return false;
                 }
@@ -59,7 +38,7 @@ namespace com.github.zvreifnitz.JsonLib.Impl
             }
         }
 
-        public bool RegisterMapperBulder<T>(T builder) where T : IJsonMapperBuilder
+        internal bool RegisterMapperBulder<T>(T builder) where T : IJsonMapperBuilder
         {
             if (builder == null)
             {
@@ -67,7 +46,7 @@ namespace com.github.zvreifnitz.JsonLib.Impl
             }
             lock (_lock)
             {
-                if (_disposed)
+                if (_frozen || _disposed)
                 {
                     return false;
                 }
@@ -78,19 +57,42 @@ namespace com.github.zvreifnitz.JsonLib.Impl
             }
         }
 
-        public bool UnregisterMapper<T>()
+        internal bool UnregisterMapper<T>()
         {
             lock (_lock)
             {
-                return !_disposed && UnregisterMapperSync<T>();
+                return !_frozen && !_disposed && UnregisterMapperSync<T>();
             }
         }
 
-        public bool UnregisterMapperBulder<T>() where T : IJsonMapperBuilder
+        internal bool UnregisterMapperBulder<T>() where T : IJsonMapperBuilder
         {
             lock (_lock)
             {
-                return !_disposed && UnregisterMapperBulderSync<T>();
+                return !_frozen && !_disposed && UnregisterMapperBulderSync<T>();
+            }
+        }
+
+        internal void Freeze()
+        {
+            lock (_lock)
+            {
+                _frozen = true;
+            }
+            _mapperWrappers.ForEach(w => w.Init());
+        }
+
+        public bool TryGetJsonSerializator<T>(out IJsonSerializator<T> serializator)
+        {
+            try
+            {
+                serializator = GetJsonSerializator<T>();
+                return true;
+            }
+            catch (JsonException)
+            {
+                serializator = null;
+                return false;
             }
         }
 
@@ -107,23 +109,6 @@ namespace com.github.zvreifnitz.JsonLib.Impl
                 return wrapper.JsonSerializator;
             }
             return ExceptionHelper.ThrowMapperNotRegisteredException<T>();
-        }
-
-        public IJsonSerializationContext Clone()
-        {
-            IJsonSerializationContext result = new JsonSerializationContext();
-            lock (_lock)
-            {
-                foreach (var wrapper in _mapperWrappers)
-                {
-                    wrapper.Clone(result);
-                }
-                foreach (var builder in _mapperBuilders)
-                {
-                    builder.Clone(result);
-                }
-            }
-            return result;
         }
 
         private MapperWrapper<T> BuildJsonSerializator<T>()
@@ -146,6 +131,7 @@ namespace com.github.zvreifnitz.JsonLib.Impl
         {
             IJsonMapperBuilder builder = GetBuilderSync<T>();
             IJsonMapper<T> mapper = builder.Build<T>(this);
+            mapper.Init(this);
             return new MapperWrapper<T>(this, mapper, builder);
         }
 
@@ -170,10 +156,7 @@ namespace com.github.zvreifnitz.JsonLib.Impl
 
         private List<IJsonMapperBuilder> GetAllBuildersSync()
         {
-            lock (_lock)
-            {
-                return new List<IJsonMapperBuilder>(_mapperBuilders.Select(i => i.GetBuilder()));
-            }
+            return new List<IJsonMapperBuilder>(_mapperBuilders.Select(i => i.GetBuilder()));
         }
 
         private bool UnregisterMapperSync<T>()
@@ -232,19 +215,20 @@ namespace com.github.zvreifnitz.JsonLib.Impl
         private interface IWrapper
         {
             IJsonMapperBuilder GetBuilder();
-            void Clone(IJsonSerializationContext context);
+            void Clone(IJsonSerializatorsBuilder context);
+            void Init();
             void Dispose();
             int ContextId { get; }
         }
 
         private sealed class BuilderWrapper<T> : IWrapper where T : IJsonMapperBuilder
         {
-            private readonly JsonSerializationContext _context;
+            private readonly JsonSerializators _serializators;
             private readonly T _builder;
 
-            internal BuilderWrapper(JsonSerializationContext context, T builder)
+            internal BuilderWrapper(JsonSerializators serializators, T builder)
             {
-                _context = context;
+                _serializators = serializators;
                 _builder = builder;
             }
 
@@ -253,33 +237,37 @@ namespace com.github.zvreifnitz.JsonLib.Impl
                 return _builder;
             }
 
-            public void Clone(IJsonSerializationContext context)
+            public void Init()
+            {
+            }
+
+            public void Clone(IJsonSerializatorsBuilder context)
             {
                 context.RegisterMapperBulder(_builder);
             }
 
             public void Dispose()
             {
-                _context.UnregisterMapperBulder<T>();
+                _serializators.UnregisterMapperBulder<T>();
             }
 
-            public int ContextId => _context._id;
+            public int ContextId => _serializators._id;
         }
 
         private sealed class MapperWrapper<T> : IWrapper
         {
             internal readonly IJsonSerializator<T> JsonSerializator;
-            private readonly JsonSerializationContext _context;
+            private readonly JsonSerializators _serializators;
             private readonly IJsonMapper<T> _mapper;
             private readonly IJsonMapperBuilder _builder;
 
-            internal MapperWrapper(JsonSerializationContext context, IJsonMapper<T> mapper,
+            internal MapperWrapper(JsonSerializators serializators, IJsonMapper<T> mapper,
                 IJsonMapperBuilder builder = null)
             {
                 _builder = builder;
                 _mapper = mapper;
-                _context = context;
-                JsonSerializator = new JsonSerializator<T>(context, mapper);
+                _serializators = serializators;
+                JsonSerializator = new JsonSerializator<T>(_serializators, mapper);
             }
 
             public IJsonMapperBuilder GetBuilder()
@@ -287,17 +275,22 @@ namespace com.github.zvreifnitz.JsonLib.Impl
                 return _builder;
             }
 
-            public void Clone(IJsonSerializationContext context)
+            public void Init()
+            {
+                _mapper.Init(_serializators);
+            }
+
+            public void Clone(IJsonSerializatorsBuilder context)
             {
                 context.RegisterMapper(_mapper);
             }
 
             public void Dispose()
             {
-                _context.UnregisterMapper<T>();
+                _serializators.UnregisterMapper<T>();
             }
 
-            public int ContextId => _context._id;
+            public int ContextId => _serializators._id;
         }
 
         private static class JsonSerializatorCache<T>
@@ -305,7 +298,7 @@ namespace com.github.zvreifnitz.JsonLib.Impl
             private static readonly ConcurrentDictionary<int, MapperWrapper<T>> Cache =
                 new ConcurrentDictionary<int, MapperWrapper<T>>();
 
-            internal static MapperWrapper<T> GetJsonSerializator(JsonSerializationContext context)
+            internal static MapperWrapper<T> GetJsonSerializator(JsonSerializators context)
             {
                 return Cache.TryGetValue(context._id, out MapperWrapper<T> wrapper) ? wrapper : null;
             }
@@ -315,7 +308,7 @@ namespace com.github.zvreifnitz.JsonLib.Impl
                 Cache[wrapper.ContextId] = wrapper;
             }
 
-            internal static MapperWrapper<T> Unregister(JsonSerializationContext context)
+            internal static MapperWrapper<T> Unregister(JsonSerializators context)
             {
                 return Cache.TryRemove(context._id, out MapperWrapper<T> wrapper) ? wrapper : null;
             }

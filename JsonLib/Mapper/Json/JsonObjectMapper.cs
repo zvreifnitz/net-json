@@ -18,12 +18,41 @@
 namespace com.github.zvreifnitz.JsonLib.Mapper.Json
 {
     using JsonLib.Json;
+    using Helper;
 
     internal sealed class JsonObjectMapper : JsonElementMapperBase<JsonObject>
     {
         public override JsonObject FromJson(IJsonSerializators context, IJsonReader reader)
         {
-            return JsonObject.FromJson(context, reader);
+            var token = reader.GetNextToken();
+            if (token == JsonToken.Null)
+            {
+                return null;
+            }
+            if (token != JsonToken.ObjectStart)
+            {
+                return ExceptionHelper.ThrowInvalidJsonException<JsonObject>();
+            }
+
+            var result = new JsonObject();
+            while (true)
+            {
+                token = reader.GetNextToken();
+                if (token == JsonToken.ObjectEnd)
+                {
+                    break;
+                }
+                if (token != JsonToken.Comma)
+                {
+                    reader.RepeatLastToken();
+                }
+                JsonSerializatorsHelper.ThrowIfNotMatch(reader, JsonToken.String);
+                var key = reader.ReadValue();
+                JsonSerializatorsHelper.ThrowIfNotMatch(reader, JsonToken.Colon);
+                var value = JsonElementMapper.FromJson(context, reader);
+                result.GetObjectMembers().Add(key, value);
+            }
+            return result;
         }
     }
 }

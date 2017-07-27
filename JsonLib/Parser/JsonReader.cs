@@ -38,8 +38,8 @@ namespace com.github.zvreifnitz.JsonLib.Parser
         public JsonReader(TextReader reader)
         {
             _reader = reader;
-            _intermediateValue = new StringBuilder();
-            _modeStack = new Stack<Mode>();
+            _intermediateValue = new StringBuilder(127);
+            _modeStack = new Stack<Mode>(127);
             _modeStack.Push(Mode.Unspecified);
         }
 
@@ -120,62 +120,52 @@ namespace com.github.zvreifnitz.JsonLib.Parser
         private JsonToken? ProcessChar_ArrayMode()
         {
             _currentValue = null;
-            switch (_currChar)
+            if (_currChar == ',')
             {
-                case ',':
-                    return JsonToken.Comma;
-                case ']':
-                    _modeStack.Pop();
-                    return JsonToken.ArrayEnd;
-                default: return ProcessChar_Default();
+                return JsonToken.Comma;
             }
+            if (_currChar == ']')
+            {
+                _modeStack.Pop();
+                return JsonToken.ArrayEnd;
+            }
+            return ProcessChar_Default();
         }
 
         private JsonToken? ProcessChar_ObjectMode()
         {
             _currentValue = null;
-            switch (_currChar)
+            if (_currChar == ',')
             {
-                case ',':
-                    return JsonToken.Comma;
-                case ':':
-                    return JsonToken.Colon;
-                case '}':
-                    _modeStack.Pop();
-                    return JsonToken.ObjectEnd;
-                default: return ProcessChar_Default();
+                return JsonToken.Comma;
             }
+            if (_currChar == ':')
+            {
+                return JsonToken.Colon;
+            }
+            if (_currChar == '}')
+            {
+                _modeStack.Pop();
+                return JsonToken.ObjectEnd;
+            }
+            return ProcessChar_Default();
         }
 
         private JsonToken? ProcessChar_NumberMode(bool forceEnd)
         {
             var currentChar = forceEnd ? '!' : _currChar;
-            switch (currentChar)
+            if (char.IsDigit(currentChar) || currentChar == '.' ||
+                currentChar == '-' || currentChar == '+' ||
+                currentChar == 'e' || currentChar == 'E')
             {
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                case '.':
-                case '-':
-                case '+':
-                case 'e':
-                case 'E':
-                    _intermediateValue.Append(_currChar);
-                    return null;
-                default:
-                    _currentValue = _intermediateValue.ToString();
-                    _intermediateValue.Clear();
-                    _modeStack.Pop();
-                    RepeatLastChar();
-                    return JsonToken.Number;
+                _intermediateValue.Append(_currChar);
+                return null;
             }
+            _currentValue = _intermediateValue.ToString();
+            _intermediateValue.Clear();
+            _modeStack.Pop();
+            RepeatLastChar();
+            return JsonToken.Number;
         }
 
         private JsonToken? ProcessChar_NullMode()
@@ -252,41 +242,39 @@ namespace com.github.zvreifnitz.JsonLib.Parser
             {
                 return null;
             }
-            switch (_currChar)
+            if (_currChar == '"')
             {
-                case '{':
-                    _modeStack.Push(Mode.Object);
-                    return JsonToken.ObjectStart;
-                case '[':
-                    _modeStack.Push(Mode.Array);
-                    return JsonToken.ArrayStart;
-                case '"':
-                    _modeStack.Push(Mode.String);
-                    _intermediateValue.Append(_currChar);
-                    return null;
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                case '-':
-                    _modeStack.Push(Mode.Number);
-                    _intermediateValue.Append(_currChar);
-                    return null;
-                case 't':
-                case 'f':
-                    _modeStack.Push(Mode.Boolean);
-                    _intermediateValue.Append(_currChar);
-                    return null;
-                case 'n':
-                    _modeStack.Push(Mode.Null);
-                    _intermediateValue.Append(_currChar);
-                    return null;
+                _modeStack.Push(Mode.String);
+                _intermediateValue.Append(_currChar);
+                return null;
+            }
+            if (_currChar == '{')
+            {
+                _modeStack.Push(Mode.Object);
+                return JsonToken.ObjectStart;
+            }
+            if (char.IsDigit(_currChar) || _currChar == '-')
+            {
+                _modeStack.Push(Mode.Number);
+                _intermediateValue.Append(_currChar);
+                return null;
+            }
+            if (_currChar == 't'||_currChar == 'f')
+            {
+                _modeStack.Push(Mode.Boolean);
+                _intermediateValue.Append(_currChar);
+                return null;
+            }
+            if (_currChar == 'n')
+            {
+                _modeStack.Push(Mode.Null);
+                _intermediateValue.Append(_currChar);
+                return null;
+            }
+            if (_currChar == '[')
+            {
+                _modeStack.Push(Mode.Array);
+                return JsonToken.ArrayStart;
             }
             return ExceptionHelper.ThrowInvalidJsonException<JsonToken>();
         }

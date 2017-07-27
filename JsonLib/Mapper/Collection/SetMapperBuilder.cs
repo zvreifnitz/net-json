@@ -37,16 +37,20 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
             where TSet : ISet<TItem>
             where TSetImpl : TSet, new()
         {
-            private readonly IJsonSerializator<TItem> _serializator;
+            private readonly IJsonMapper<TItem> _mapper;
 
             public SetMapper(IJsonSerializator<TItem> serializator)
             {
-                _serializator = serializator;
+                _mapper = serializator.Mapper;
             }
 
             public bool CanSerialize => true;
 
             public bool CanDeserialize => true;
+
+            public void Init(IJsonSerializators context)
+            {
+            }
 
             public void ToJson(IJsonSerializators context, IJsonWriter writer, TSet instance)
             {
@@ -79,9 +83,9 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
 
             private void ToJsonItem(IJsonSerializators context, IJsonWriter writer, TItem instance)
             {
-                if (_serializator.Mapper.CanSerialize)
+                if (_mapper.CanSerialize)
                 {
-                    _serializator.Mapper.ToJson(context, writer, instance);
+                    _mapper.ToJson(context, writer, instance);
                 }
                 else
                 {
@@ -119,8 +123,8 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
 
             private TItem FromJsonItem(IJsonSerializators context, IJsonReader reader)
             {
-                return _serializator.Mapper.CanDeserialize
-                    ? _serializator.Mapper.FromJson(context, reader)
+                return _mapper.CanDeserialize
+                    ? _mapper.FromJson(context, reader)
                     : default(TItem);
             }
         }

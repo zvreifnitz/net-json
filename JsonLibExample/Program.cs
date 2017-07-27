@@ -23,10 +23,20 @@ namespace JsonLibExample
     {
         public static void Main(string[] args)
         {
-            using (var ctx = JsonSerializationFactory.NewJsonSerializationContext())
+            var builder = JsonLibFactory.NewSerializatorsBuilder();
+            var mapper = JsonLibFactory.NewObjectMapperBuilder<SimpleObject>()
+                .NewInstanceProvider(() => new SimpleObject())
+                .AddProperty(o => o.IntValue)
+                .AddProperty(o => o.GuidValue)
+                .AddProperty(o => o.StringValue)
+                .Build();
+            builder.RegisterMapper(mapper);
+
+            using (var ctx = builder.Build())
             {
-                Tests.Run(ctx);
-                StringPerfComparison.Run(ctx);
+                //BuiltInTypes.Run(ctx);
+                //new StringPerfComparison().Run(ctx);
+                new SimpleObjecttPerfComparison().Run(ctx);
             }
         }
     }

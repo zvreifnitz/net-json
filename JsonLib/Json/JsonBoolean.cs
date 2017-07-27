@@ -17,7 +17,6 @@
 
 namespace com.github.zvreifnitz.JsonLib.Json
 {
-    using Helper;
     using Parser;
 
     public sealed class JsonBoolean : JsonElement
@@ -39,24 +38,10 @@ namespace com.github.zvreifnitz.JsonLib.Json
             return _value;
         }
 
-        internal override void ToJson(IJsonSerializators context, IJsonWriter writer)
+        internal override void ToJson(
+            IJsonSerializators context, IJsonWriter writer, IJsonMapper<JsonElement> elMapper)
         {
             writer.WriteRaw(_value ? JsonLiterals.True : JsonLiterals.False);
-        }
-
-        internal new static JsonBoolean FromJson(IJsonSerializators context, IJsonReader reader)
-        {
-            switch (reader.GetNextToken())
-            {
-                case JsonToken.Null:
-                    return null;
-                case JsonToken.False:
-                    return False;
-                case JsonToken.True:
-                    return True;
-                default:
-                    return ExceptionHelper.ThrowInvalidJsonException<JsonBoolean>();
-            }
         }
     }
 }

@@ -15,15 +15,21 @@
  *
  */
 
-namespace com.github.zvreifnitz.JsonLib
+namespace JsonLibExample
 {
-    using Impl;
+    using System;
 
-    public static class JsonSerializationFactory
+    public class SimpleObject
     {
-        public static IJsonSerializationContext NewJsonSerializationContext()
+        public int IntValue { get; set; }
+        public Guid GuidValue { get; set; }
+        public string StringValue { get; set; }
+
+        public override string ToString()
         {
-            return new JsonSerializationContext();
+            return string.Format(
+                "{{\"IntValue\":{0},\"GuidValue\":\"{1}\",\"StringValue\":\"{2}\"}}",
+                IntValue, GuidValue, StringValue);
         }
     }
 }

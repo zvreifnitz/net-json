@@ -30,6 +30,10 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Simple
 
         public bool CanDeserialize => true;
 
+        public void Init(IJsonSerializators context)
+        {
+        }
+
         public void ToJson(IJsonSerializators context, IJsonWriter writer, T instance)
         {
             _converter.ToJson(context, writer, instance);

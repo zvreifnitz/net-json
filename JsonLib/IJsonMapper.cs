@@ -25,6 +25,7 @@ namespace com.github.zvreifnitz.JsonLib
 
     public interface IJsonMapper<T> : IJsonMapper
     {
+        void Init(IJsonSerializators context);
         void ToJson(IJsonSerializators context, IJsonWriter writer, T instance);
         T FromJson(IJsonSerializators context, IJsonReader reader);
     }
