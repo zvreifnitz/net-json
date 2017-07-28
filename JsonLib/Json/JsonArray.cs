@@ -24,7 +24,7 @@ namespace com.github.zvreifnitz.JsonLib.Json
     {
         private readonly List<JsonElement> _elements = new List<JsonElement>();
 
-        public override JsonType Type => JsonType.Array;
+        public override JsonElementType Type => JsonElementType.Array;
 
         public override List<JsonElement> GetArrayElements()
         {

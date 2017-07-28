@@ -50,7 +50,7 @@ namespace com.github.zvreifnitz.JsonLib.Json
             _value = value.ToString(CultureInfo.InvariantCulture);
         }
 
-        public override JsonType Type => JsonType.Number;
+        public override JsonElementType Type => JsonElementType.Number;
 
         public override string GetStringValue()
         {

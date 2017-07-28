@@ -48,6 +48,7 @@ namespace JsonLibExample
                 for (int i = 0; i < 10; i++)
                 {
                     new StringPerfComparison().Run(ctx);
+                    new DictionaryPerfComparison().Run(ctx);
                     new SimpleObjectPerfComparison().Run(ctx);
                     new MediumObjectPerfComparison().Run(ctx);
                 }

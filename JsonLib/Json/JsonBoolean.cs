@@ -31,7 +31,7 @@ namespace com.github.zvreifnitz.JsonLib.Json
             _value = value;
         }
 
-        public override JsonType Type => JsonType.Boolean;
+        public override JsonElementType Type => JsonElementType.Boolean;
 
         public override bool GetBooleanValue()
         {

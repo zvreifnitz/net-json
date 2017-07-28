@@ -27,7 +27,7 @@ namespace com.github.zvreifnitz.JsonLib.Json
         {
         }
 
-        public override JsonType Type => JsonType.Null;
+        public override JsonElementType Type => JsonElementType.Null;
 
         internal override void ToJson(
             IJsonContext context, IJsonWriter writer, IJsonMapper<JsonElement> elMapper)

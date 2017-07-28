@@ -24,7 +24,7 @@ namespace com.github.zvreifnitz.JsonLib.Json
     {
         private readonly Dictionary<string, JsonElement> _objectMembers = new Dictionary<string, JsonElement>();
 
-        public override JsonType Type => JsonType.Object;
+        public override JsonElementType Type => JsonElementType.Object;
 
         public override Dictionary<string, JsonElement> GetObjectMembers()
         {

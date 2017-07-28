@@ -24,7 +24,7 @@ namespace com.github.zvreifnitz.JsonLib.Helper
 
     public static class ExceptionHelper
     {
-        public static T ThrowJsonTypeMismatchException<T>(JsonType jsonTypeThis, JsonType jsonTypeOther)
+        public static T ThrowJsonTypeMismatchException<T>(JsonElementType jsonTypeThis, JsonElementType jsonTypeOther)
         {
             throw new JsonException(JsonExceptionType.TypeMismatch,
                 string.Format("Json value '{0}' could not be converted to '{1}'", jsonTypeThis, jsonTypeOther));

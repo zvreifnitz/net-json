@@ -28,7 +28,7 @@ namespace com.github.zvreifnitz.JsonLib.Json
             _value = value;
         }
 
-        public override JsonType Type => JsonType.String;
+        public override JsonElementType Type => JsonElementType.String;
 
         public override string GetStringValue()
         {
