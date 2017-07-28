@@ -42,10 +42,13 @@ namespace JsonLibExample
             
             using (var ctx = builder.Build())
             {
-                //BuiltInTypes.Run(ctx);
-                new StringPerfComparison().Run(ctx);
-                new SimpleObjectPerfComparison().Run(ctx);
-                new MediumObjectPerfComparison().Run(ctx);
+                BuiltInTypes.Run(ctx);
+                for (int i = 0; i < 10; i++)
+                {
+                    new StringPerfComparison().Run(ctx);
+                    new SimpleObjectPerfComparison().Run(ctx);
+                    new MediumObjectPerfComparison().Run(ctx);
+                }
             }
         }
     }

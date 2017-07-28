@@ -100,6 +100,10 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
                 {
                     return default(TSet);
                 }
+                if (token == JsonToken.ArrayEmpty)
+                {
+                    return new TSetImpl();
+                }
                 if (token != JsonToken.ArrayStart)
                 {
                     return ExceptionHelper.ThrowInvalidJsonException<TSet>();

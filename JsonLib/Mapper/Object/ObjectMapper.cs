@@ -92,6 +92,10 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Object
             {
                 return default(TClass);
             }
+            if (token == JsonToken.ObjectEmpty)
+            {
+                return _instanceProvider();
+            }
             if (token != JsonToken.ObjectStart)
             {
                 return ExceptionHelper.ThrowInvalidJsonException<TClass>();

@@ -29,6 +29,10 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Json
             {
                 return null;
             }
+            if (token == JsonToken.ArrayEmpty)
+            {
+                return new JsonArray();
+            }
             if (token != JsonToken.ArrayStart)
             {
                 return ExceptionHelper.ThrowInvalidJsonException<JsonArray>();

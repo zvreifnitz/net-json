@@ -28,8 +28,8 @@ namespace JsonLibExample
 
     public abstract class PerfComparisonBase
     {
-        private const int WarmCount = 10 * 1000;
-        private const int TestCount = 100 * 1000;
+        protected const int WarmCount = 10 * 1000;
+        protected const int TestCount = 20 * 1000;
         private static readonly Random Random = new Random();
         private readonly object _tickLock = new object();
 

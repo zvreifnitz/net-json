@@ -23,9 +23,9 @@ namespace JsonLibExample
 
     public class StringPerfComparison : PerfComparisonBase
     {
-        private const string CleanValue =  "ABC";
-        private const string JsonValue =  "\"ABC\"";
-        
+        private const string CleanValue = "ABC";
+        private const string JsonValue = "\"ABC\"";
+
         public override void Run(IJsonSerializators ctx)
         {
             long serNewtonsoftJson = 0L;
@@ -64,14 +64,20 @@ namespace JsonLibExample
             Console.Out.WriteLine("################################################");
             Console.Out.WriteLine("Newtonsoft.Json");
             Console.Out.WriteLine("================================================");
-            Console.Out.WriteLine("  Serialize: {0}, Example: {1}", serNewtonsoftJson, serNewtonsoftJsonExample);
-            Console.Out.WriteLine("Deserialize: {0}, Example: {1}", deserNewtonsoftJson, deserNewtonsoftJsonExample);
+            Console.Out.WriteLine("  Serialize: {0}, AvgTime: {1}, Example: {2}",
+                serNewtonsoftJson, TimeSpan.FromTicks(serNewtonsoftJson).TotalMilliseconds / TestCount,
+                serNewtonsoftJsonExample);
+            Console.Out.WriteLine("Deserialize: {0}, AvgTime: {1}, Example: {2}",
+                deserNewtonsoftJson, TimeSpan.FromTicks(deserNewtonsoftJson).TotalMilliseconds / TestCount,
+                deserNewtonsoftJsonExample);
             Console.Out.WriteLine("      Total: {0}", totalNewtonsoftJson);
             Console.Out.WriteLine("################################################");
             Console.Out.WriteLine("JsonLib");
             Console.Out.WriteLine("================================================");
-            Console.Out.WriteLine("  Serialize: {0}, Example: {1}", serJsonLib, serJsonLibExample);
-            Console.Out.WriteLine("Deserialize: {0}, Example: {1}", deserJsonLib, deserJsonLibExample);
+            Console.Out.WriteLine("  Serialize: {0}, AvgTime: {1}, Example: {2}",
+                serJsonLib, TimeSpan.FromTicks(serJsonLib).TotalMilliseconds / TestCount, serJsonLibExample);
+            Console.Out.WriteLine("Deserialize: {0}, AvgTime: {1}, Example: {2}",
+                deserJsonLib, TimeSpan.FromTicks(deserJsonLib).TotalMilliseconds / TestCount, deserJsonLibExample);
             Console.Out.WriteLine("      Total: {0}", totalJsonLib);
             Console.Out.WriteLine("################################################");
             Console.Out.WriteLine("Ratio");

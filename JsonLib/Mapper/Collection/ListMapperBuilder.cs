@@ -94,6 +94,10 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
                 {
                     return default(TList);
                 }
+                if (token == JsonToken.ArrayEmpty)
+                {
+                    return new TListImpl();
+                }
                 if (token != JsonToken.ArrayStart)
                 {
                     return ExceptionHelper.ThrowInvalidJsonException<TList>();

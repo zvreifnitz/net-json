@@ -27,8 +27,10 @@ namespace com.github.zvreifnitz.JsonLib
     public enum JsonToken
     {
         ObjectStart,
+        ObjectEmpty,
         ObjectEnd,
         ArrayStart,
+        ArrayEmpty,
         ArrayEnd,
         String,
         True,

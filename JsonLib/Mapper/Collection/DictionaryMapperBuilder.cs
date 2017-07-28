@@ -51,15 +51,17 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
             private readonly char _startLiteral;
             private readonly char _endLiteral;
             private readonly JsonToken _startToken;
+            private readonly JsonToken _emptyToken;
             private readonly JsonToken _endToken;
 
             protected DictionaryMapperBase(
                 IJsonSerializator<TKey> keySerializator, IJsonSerializator<TValue> valueSerializator,
-                char startLiteral, char endLiteral, JsonToken startToken, JsonToken endToken)
+                char startLiteral, char endLiteral, JsonToken startToken, JsonToken emptyToken, JsonToken endToken)
             {
                 _keyMapper = keySerializator.Mapper;
                 _valueMapper = valueSerializator.Mapper;
                 _startLiteral = startLiteral;
+                _emptyToken = emptyToken;
                 _endLiteral = endLiteral;
                 _startToken = startToken;
                 _endToken = endToken;
@@ -108,6 +110,11 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
                 if (token == JsonToken.Null)
                 {
                     return default(TDictionary);
+                }
+                if (token == _emptyToken)
+                {
+                    return new TDictionaryImpl();
+                    ;
                 }
                 if (token != _startToken)
                 {
@@ -179,7 +186,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
                 base(
                     keySerializator, valueSerializator,
                     JsonLiterals.ObjectStart, JsonLiterals.ObjectEnd,
-                    JsonToken.ObjectStart, JsonToken.ObjectEnd)
+                    JsonToken.ObjectStart, JsonToken.ObjectEmpty, JsonToken.ObjectEnd)
             {
             }
 
@@ -210,7 +217,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
                 base(
                     keySerializator, valueSerializator,
                     JsonLiterals.ArrayStart, JsonLiterals.ArrayEnd,
-                    JsonToken.ArrayStart, JsonToken.ArrayEnd)
+                    JsonToken.ArrayStart, JsonToken.ArrayEmpty, JsonToken.ArrayEnd)
             {
             }
 

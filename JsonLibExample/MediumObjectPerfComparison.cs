@@ -80,7 +80,9 @@ namespace JsonLibExample
                 }
             };
 
-        private static readonly string JsonValue = CleanValue.ToString();
+        private const string JsonValue =
+                "{\"Name\":\"ABC\",\"MaybeInt\":null,\"SimpleObjectList\":[{\"IntValue\":1,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae81\",\"StringValue\":\"ABC\"},{\"IntValue\":2,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae82\",\"StringValue\":\"ABC\"},{\"IntValue\":3,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae83\",\"StringValue\":\"ABC\"}],\"SimpleObjectDictionary\":{\"1\":{\"IntValue\":1,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae81\",\"StringValue\":\"ABC\"},\"2\":{\"IntValue\":2,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae82\",\"StringValue\":\"ABC\"},\"3\":{\"IntValue\":3,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae83\",\"StringValue\":\"ABC\"}}}"
+            ;
 
         public override void Run(IJsonSerializators ctx)
         {
@@ -120,14 +122,20 @@ namespace JsonLibExample
             Console.Out.WriteLine("################################################");
             Console.Out.WriteLine("Newtonsoft.Json");
             Console.Out.WriteLine("================================================");
-            Console.Out.WriteLine("  Serialize: {0}, Example: {1}", serNewtonsoftJson, serNewtonsoftJsonExample);
-            Console.Out.WriteLine("Deserialize: {0}, Example: {1}", deserNewtonsoftJson, deserNewtonsoftJsonExample);
+            Console.Out.WriteLine("  Serialize: {0}, AvgTime: {1}, Example: {2}",
+                serNewtonsoftJson, TimeSpan.FromTicks(serNewtonsoftJson).TotalMilliseconds / TestCount,
+                serNewtonsoftJsonExample);
+            Console.Out.WriteLine("Deserialize: {0}, AvgTime: {1}, Example: {2}",
+                deserNewtonsoftJson, TimeSpan.FromTicks(deserNewtonsoftJson).TotalMilliseconds / TestCount,
+                deserNewtonsoftJsonExample);
             Console.Out.WriteLine("      Total: {0}", totalNewtonsoftJson);
             Console.Out.WriteLine("################################################");
             Console.Out.WriteLine("JsonLib");
             Console.Out.WriteLine("================================================");
-            Console.Out.WriteLine("  Serialize: {0}, Example: {1}", serJsonLib, serJsonLibExample);
-            Console.Out.WriteLine("Deserialize: {0}, Example: {1}", deserJsonLib, deserJsonLibExample);
+            Console.Out.WriteLine("  Serialize: {0}, AvgTime: {1}, Example: {2}",
+                serJsonLib, TimeSpan.FromTicks(serJsonLib).TotalMilliseconds / TestCount, serJsonLibExample);
+            Console.Out.WriteLine("Deserialize: {0}, AvgTime: {1}, Example: {2}",
+                deserJsonLib, TimeSpan.FromTicks(deserJsonLib).TotalMilliseconds / TestCount, deserJsonLibExample);
             Console.Out.WriteLine("      Total: {0}", totalJsonLib);
             Console.Out.WriteLine("################################################");
             Console.Out.WriteLine("Ratio");

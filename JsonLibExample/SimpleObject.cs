@@ -24,12 +24,5 @@ namespace JsonLibExample
         public int IntValue { get; set; }
         public Guid GuidValue { get; set; }
         public string StringValue { get; set; }
-
-        public override string ToString()
-        {
-            return string.Format(
-                "{{\"IntValue\":{0},\"GuidValue\":\"{1}\",\"StringValue\":\"{2}\"}}",
-                IntValue, GuidValue, StringValue);
-        }
     }
 }

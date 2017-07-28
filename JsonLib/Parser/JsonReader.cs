@@ -69,6 +69,16 @@ namespace com.github.zvreifnitz.JsonLib.Parser
             return _currChar = MoveToNextChar() ? ReadNextChar() : _currChar;
         }
 
+        private char GetNextCharSkipWhitespace()
+        {
+            char currChar;
+            do
+            {
+                currChar = GetNextChar();
+            } while (char.IsWhiteSpace(currChar));
+            return currChar;
+        }
+
         private char? PeekNextChar()
         {
             var nextCharInt = _reader.Peek();
@@ -170,11 +180,7 @@ namespace com.github.zvreifnitz.JsonLib.Parser
         {
             while (true)
             {
-                var currChar = GetNextChar();
-                if (char.IsWhiteSpace(currChar))
-                {
-                    continue;
-                }
+                var currChar = GetNextCharSkipWhitespace();
                 if (currChar == JsonLiterals.QuotationMark)
                 {
                     RepeatLastChar();
@@ -182,7 +188,12 @@ namespace com.github.zvreifnitz.JsonLib.Parser
                 }
                 if (currChar == JsonLiterals.ObjectStart)
                 {
+                    if (GetNextCharSkipWhitespace() == JsonLiterals.ObjectEnd)
+                    {
+                        return JsonToken.ObjectEmpty;
+                    }
                     _modeStack.Push(Mode.Object);
+                    RepeatLastChar();
                     _expToken = JsonToken.String;
                     return JsonToken.ObjectStart;
                 }
@@ -203,7 +214,12 @@ namespace com.github.zvreifnitz.JsonLib.Parser
                 }
                 if (currChar == JsonLiterals.ArrayStart)
                 {
+                    if (GetNextCharSkipWhitespace() == JsonLiterals.ArrayEnd)
+                    {
+                        return JsonToken.ArrayEmpty;
+                    }
                     _modeStack.Push(Mode.Array);
+                    RepeatLastChar();
                     return JsonToken.ArrayStart;
                 }
                 return ExceptionHelper.ThrowInvalidJsonException<JsonToken>();

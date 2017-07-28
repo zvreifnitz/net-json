@@ -42,6 +42,10 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Json
                 case JsonToken.ArrayStart:
                     reader.RepeatLastToken();
                     return JsonArrayMapper.FromJson(context, reader);
+                case JsonToken.ObjectEmpty:
+                    return new JsonObject();
+                case JsonToken.ArrayEmpty:
+                    return new JsonArray();
                 default:
                     return ExceptionHelper.ThrowInvalidJsonException<JsonElement>();
             }
