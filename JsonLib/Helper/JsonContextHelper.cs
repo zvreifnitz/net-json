@@ -23,7 +23,7 @@ namespace com.github.zvreifnitz.JsonLib.Helper
     internal static class JsonContextHelper
     {
         private static readonly MethodInfo GetJsonSerializatorMethod =
-            typeof(IJsonContext).GetRuntimeMethod("GetJsonSerializator", new Type[0]);
+            typeof(IJsonContext).GetRuntimeMethod("GetSerializator", new Type[0]);
 
         public static void ThrowIfNotMatch(IJsonReader reader, JsonToken token)
         {
@@ -33,7 +33,7 @@ namespace com.github.zvreifnitz.JsonLib.Helper
             }
         }
 
-        public static IJsonSerializator GetJsonSerializatorReflection(this IJsonContext context, Type type)
+        public static IJsonSerializator GetSerializatorReflection(this IJsonContext context, Type type)
         {
             try
             {

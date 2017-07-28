@@ -82,11 +82,12 @@ namespace JsonLibExample
                     1,
                     null,
                     3
-                }
+                },
+                IntArray = new int?[] {111, null, 333, null, 555}
             };
 
         private const string JsonValue =
-                "{\"Name\":\"ABC\",\"MaybeInt\":null,\"SimpleObjectList\":[{\"IntValue\":1,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae81\",\"StringValue\":\"ABC\"},{\"IntValue\":2,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae82\",\"StringValue\":\"ABC\"},{\"IntValue\":3,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae83\",\"StringValue\":\"ABC\"}],\"SimpleObjectDictionary\":{\"1\":{\"IntValue\":1,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae81\",\"StringValue\":\"ABC\"},\"2\":{\"IntValue\":2,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae82\",\"StringValue\":\"ABC\"},\"3\":{\"IntValue\":3,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae83\",\"StringValue\":\"ABC\"}},\"LongSet\":[1,null,3]}"
+                "{\"Name\":\"ABC\",\"MaybeInt\":null,\"SimpleObjectList\":[{\"IntValue\":1,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae81\",\"StringValue\":\"ABC\"},{\"IntValue\":2,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae82\",\"StringValue\":\"ABC\"},{\"IntValue\":3,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae83\",\"StringValue\":\"ABC\"}],\"SimpleObjectDictionary\":{\"1\":{\"IntValue\":1,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae81\",\"StringValue\":\"ABC\"},\"2\":{\"IntValue\":2,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae82\",\"StringValue\":\"ABC\"},\"3\":{\"IntValue\":3,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae83\",\"StringValue\":\"ABC\"}},\"LongSet\":[1,null,3],\"IntArray\":[111,null,333,null,555]}"
             ;
 
         public override void Run(IJsonContext ctx)

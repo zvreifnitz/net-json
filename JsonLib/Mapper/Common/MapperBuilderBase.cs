@@ -94,7 +94,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Common
         {
             foreach (var type in types)
             {
-                if (context.GetJsonSerializatorReflection(type) == null)
+                if (context.GetSerializatorReflection(type) == null)
                 {
                     return false;
                 }
@@ -107,7 +107,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Common
             IJsonSerializator[] result = new IJsonSerializator[types.Length];
             for (int i = 0; i < types.Length; i++)
             {
-                IJsonSerializator tmp = context.GetJsonSerializatorReflection(types[i]);
+                IJsonSerializator tmp = context.GetSerializatorReflection(types[i]);
                 if (tmp == null)
                 {
                     return null;

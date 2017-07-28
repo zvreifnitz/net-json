@@ -49,7 +49,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Common
             {
                 return false;
             }
-            return context.GetJsonSerializatorReflection(delegatingType) != null;
+            return context.GetSerializatorReflection(delegatingType) != null;
         }
 
         public IJsonMapper<T> Build<T>(IJsonContext context)
@@ -64,7 +64,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Common
             {
                 return null;
             }
-            var serializator = context.GetJsonSerializatorReflection(delegatingType);
+            var serializator = context.GetSerializatorReflection(delegatingType);
             if (serializator == null)
             {
                 return null;
