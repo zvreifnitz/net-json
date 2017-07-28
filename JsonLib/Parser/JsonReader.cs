@@ -118,11 +118,11 @@ namespace com.github.zvreifnitz.JsonLib.Parser
                 case JsonToken.String:
                     return ReadString(JsonToken.Colon);
                 case JsonToken.Colon:
-                    return GetNextChar() == JsonLiterals.Colon
+                    return GetNextCharSkipWhitespace() == JsonLiterals.Colon
                         ? JsonToken.Colon
                         : ExceptionHelper.ThrowInvalidJsonException<JsonToken>();
                 case JsonToken.Comma:
-                    return GetNextChar() == JsonLiterals.Comma
+                    return GetNextCharSkipWhitespace() == JsonLiterals.Comma
                         ? JsonToken.Comma
                         : ExceptionHelper.ThrowInvalidJsonException<JsonToken>();
                 default:
@@ -145,7 +145,7 @@ namespace com.github.zvreifnitz.JsonLib.Parser
 
         private JsonToken ReadUnexpectedToken_Object()
         {
-            var currChar = GetNextChar();
+            var currChar = GetNextCharSkipWhitespace();
             if (currChar == JsonLiterals.Comma)
             {
                 _expToken = JsonToken.String;
@@ -162,7 +162,7 @@ namespace com.github.zvreifnitz.JsonLib.Parser
 
         private JsonToken ReadUnexpectedToken_Array()
         {
-            var currChar = GetNextChar();
+            var currChar = GetNextCharSkipWhitespace();
             if (currChar == JsonLiterals.Comma)
             {
                 return JsonToken.Comma;
@@ -230,7 +230,7 @@ namespace com.github.zvreifnitz.JsonLib.Parser
         {
             try
             {
-                var currChar = GetNextChar();
+                var currChar = GetNextCharSkipWhitespace();
                 if (currChar != JsonLiterals.QuotationMark)
                 {
                     return ExceptionHelper.ThrowInvalidJsonException<JsonToken>();

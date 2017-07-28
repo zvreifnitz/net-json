@@ -39,7 +39,7 @@ namespace JsonLibExample
             string serNewtonsoftJsonExample = null;
             long serJsonLib = 0L;
             string serJsonLibExample = null;
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < RepetitionCount; i++)
             {
                 var njResult = SerializeTimeNewtonsoftJson();
                 serNewtonsoftJson += njResult.Item1;
@@ -53,7 +53,7 @@ namespace JsonLibExample
             SimpleObject deserNewtonsoftJsonExample = null;
             long deserJsonLib = 0L;
             SimpleObject deserJsonLibExample = null;
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < RepetitionCount; i++)
             {
                 var njResult = DeserializeTimeNewtonsoftJson();
                 deserNewtonsoftJson += njResult.Item1;
@@ -65,26 +65,27 @@ namespace JsonLibExample
 
             long totalNewtonsoftJson = serNewtonsoftJson + deserNewtonsoftJson;
             long totalJsonLib = serJsonLib + deserJsonLib;
-
+            double totalItems = RepetitionCount * TestCount;
+            
             Console.Out.WriteLine("################################################");
             Console.Out.WriteLine("SimpleObject perf comparison");
             Console.Out.WriteLine("################################################");
             Console.Out.WriteLine("Newtonsoft.Json");
             Console.Out.WriteLine("================================================");
-            Console.Out.WriteLine("  Serialize: {0}, AvgTime: {1}, Example: {2}",
-                serNewtonsoftJson, TimeSpan.FromTicks(serNewtonsoftJson).TotalMilliseconds / TestCount,
+            Console.Out.WriteLine("  Serialize: {0}, AvgTime: {1} ms, Example: {2}",
+                serNewtonsoftJson, TimeSpan.FromTicks(serNewtonsoftJson).TotalMilliseconds / totalItems,
                 serNewtonsoftJsonExample);
-            Console.Out.WriteLine("Deserialize: {0}, AvgTime: {1}, Example: {2}",
-                deserNewtonsoftJson, TimeSpan.FromTicks(deserNewtonsoftJson).TotalMilliseconds / TestCount,
+            Console.Out.WriteLine("Deserialize: {0}, AvgTime: {1} ms, Example: {2}",
+                deserNewtonsoftJson, TimeSpan.FromTicks(deserNewtonsoftJson).TotalMilliseconds / totalItems,
                 deserNewtonsoftJsonExample);
             Console.Out.WriteLine("      Total: {0}", totalNewtonsoftJson);
             Console.Out.WriteLine("################################################");
             Console.Out.WriteLine("JsonLib");
             Console.Out.WriteLine("================================================");
-            Console.Out.WriteLine("  Serialize: {0}, AvgTime: {1}, Example: {2}",
-                serJsonLib, TimeSpan.FromTicks(serJsonLib).TotalMilliseconds / TestCount, serJsonLibExample);
-            Console.Out.WriteLine("Deserialize: {0}, AvgTime: {1}, Example: {2}",
-                deserJsonLib, TimeSpan.FromTicks(deserJsonLib).TotalMilliseconds / TestCount, deserJsonLibExample);
+            Console.Out.WriteLine("  Serialize: {0}, AvgTime: {1} ms, Example: {2}",
+                serJsonLib, TimeSpan.FromTicks(serJsonLib).TotalMilliseconds / totalItems, serJsonLibExample);
+            Console.Out.WriteLine("Deserialize: {0}, AvgTime: {1} ms, Example: {2}",
+                deserJsonLib, TimeSpan.FromTicks(deserJsonLib).TotalMilliseconds / totalItems, deserJsonLibExample);
             Console.Out.WriteLine("      Total: {0}", totalJsonLib);
             Console.Out.WriteLine("################################################");
             Console.Out.WriteLine("Ratio");

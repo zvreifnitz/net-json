@@ -28,6 +28,7 @@ namespace JsonLibExample
 
     public abstract class PerfComparisonBase
     {
+        protected const int RepetitionCount = 10;
         protected const int WarmCount = 10 * 1000;
         protected const int TestCount = 20 * 1000;
         private static readonly Random Random = new Random();
