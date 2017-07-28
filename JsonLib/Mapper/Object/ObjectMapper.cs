@@ -26,13 +26,16 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Object
     internal sealed class ObjectMapper<TClass> : IJsonMapper<TClass>
     {
         private readonly Func<TClass> _instanceProvider;
-        private readonly Dictionary<string, IJsonGetterSetter<TClass>> _getterSetters;
+        private readonly Dictionary<string, IJsonGetterSetter<TClass>> _getters;
+        private readonly Dictionary<string, IJsonGetterSetter<TClass>> _setters;
 
         internal ObjectMapper(Func<TClass> instanceProvider,
-            Dictionary<string, IJsonGetterSetter<TClass>> getterSetters)
+            Dictionary<string, IJsonGetterSetter<TClass>> getters,
+            Dictionary<string, IJsonGetterSetter<TClass>> setters)
         {
             _instanceProvider = instanceProvider;
-            _getterSetters = getterSetters;
+            _getters = getters;
+            _setters = setters;
         }
 
         public bool CanSerialize => true;
@@ -41,9 +44,13 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Object
 
         public void Init(IJsonSerializators context)
         {
-            foreach (var getterSetter in _getterSetters.Values)
+            foreach (var getter in _getters.Values)
             {
-                getterSetter.Init(context);
+                getter.Init(context);
+            }
+            foreach (var setter in _setters.Values)
+            {
+                setter.Init(context);
             }
         }
 
@@ -56,10 +63,10 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Object
             else
             {
                 writer.WriteRaw(JsonLiterals.ObjectStart);
-                if (_getterSetters.Count > 0)
+                if (_getters.Count > 0)
                 {
                     var addComma = false;
-                    foreach (var member in _getterSetters)
+                    foreach (var getter in _getters)
                     {
                         if (addComma)
                         {
@@ -69,9 +76,9 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Object
                         {
                             addComma = true;
                         }
-                        writer.WriteRaw(member.Key.EncodeToJsonString());
+                        writer.WriteRaw(getter.Key);
                         writer.WriteRaw(JsonLiterals.Colon);
-                        member.Value.ToJson(context, writer, instance);
+                        getter.Value.ToJson(context, writer, instance);
                     }
                 }
                 writer.WriteRaw(JsonLiterals.ObjectEnd);
@@ -104,9 +111,9 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Object
                 JsonSerializatorsHelper.ThrowIfNotMatch(reader, JsonToken.String);
                 var key = reader.ReadValue();
                 JsonSerializatorsHelper.ThrowIfNotMatch(reader, JsonToken.Colon);
-                if (_getterSetters.TryGetValue(key, out IJsonGetterSetter<TClass> getterSetter))
+                if (_setters.TryGetValue(key, out IJsonGetterSetter<TClass> setter))
                 {
-                    getterSetter.FromJson(context, reader, result);
+                    setter.FromJson(context, reader, result);
                 }
             }
             return result;

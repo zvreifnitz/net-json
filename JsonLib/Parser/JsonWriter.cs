@@ -22,21 +22,84 @@ namespace com.github.zvreifnitz.JsonLib.Parser
 
     internal sealed class JsonWriter : IJsonWriter, IDisposable
     {
-        private readonly TextWriter writer;
+        private readonly TextWriter _writer;
 
         public JsonWriter(TextWriter writer)
         {
-            this.writer = writer;
+            _writer = writer;
         }
 
         public void EncodeAndWrite(string value)
         {
-            WriteRaw(value.EncodeToJsonString());
+            if (value == null)
+            {
+                _writer.Write(JsonLiterals.Null);
+                return;
+            }
+
+            _writer.Write(JsonLiterals.QuotationMark);
+            foreach (var ch in value)
+            {
+                switch (ch)
+                {
+                    case JsonLiterals.QuotationMark:
+                    {
+                        _writer.Write(JsonLiterals.QuotationMarkJson);
+                        break;
+                    }
+                    case JsonLiterals.ReverseSolidus:
+                    {
+                        _writer.Write(JsonLiterals.ReverseSolidusJson);
+                        break;
+                    }
+                    case JsonLiterals.Solidus:
+                    {
+                        _writer.Write(JsonLiterals.SolidusJson);
+                        break;
+                    }
+                    case JsonLiterals.Backspace:
+                    {
+                        _writer.Write(JsonLiterals.BackspaceJson);
+                        break;
+                    }
+                    case JsonLiterals.Formfeed:
+                    {
+                        _writer.Write(JsonLiterals.FormfeedJson);
+                        break;
+                    }
+                    case JsonLiterals.Newline:
+                    {
+                        _writer.Write(JsonLiterals.NewlineJson);
+                        break;
+                    }
+                    case JsonLiterals.CarriageReturn:
+                    {
+                        _writer.Write(JsonLiterals.CarriageReturnJson);
+                        break;
+                    }
+                    case JsonLiterals.HorizontalTab:
+                    {
+                        _writer.Write(JsonLiterals.HorizontalTabJson);
+                        break;
+                    }
+                    default:
+                    {
+                        _writer.Write(ch);
+                        break;
+                    }
+                }
+            }
+            _writer.Write(JsonLiterals.QuotationMark);
         }
 
         public void WriteRaw(string value)
         {
-            writer.Write(value);
+            _writer.Write(value);
+        }
+
+        public void WriteRaw(char value)
+        {
+            _writer.Write(value);
         }
 
         public void Dispose()

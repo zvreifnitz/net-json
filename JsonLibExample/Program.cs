@@ -24,19 +24,28 @@ namespace JsonLibExample
         public static void Main(string[] args)
         {
             var builder = JsonLibFactory.NewSerializatorsBuilder();
-            var mapper = JsonLibFactory.NewObjectMapperBuilder<SimpleObject>()
+            var simpleObjectMapper = JsonLibFactory.NewObjectMapperBuilder<SimpleObject>()
                 .NewInstanceProvider(() => new SimpleObject())
                 .AddProperty(o => o.IntValue)
                 .AddProperty(o => o.GuidValue)
                 .AddProperty(o => o.StringValue)
                 .Build();
-            builder.RegisterMapper(mapper);
-
+            builder.RegisterMapper(simpleObjectMapper);
+            var mediumObjectMapper = JsonLibFactory.NewObjectMapperBuilder<MediumObject>()
+                .NewInstanceProvider(() => new MediumObject())
+                .AddProperty(o => o.Name)
+                .AddProperty(o => o.MaybeInt)
+                .AddProperty(o => o.SimpleObjectList)
+                .AddProperty(o => o.SimpleObjectDictionary)
+                .Build();
+            builder.RegisterMapper(mediumObjectMapper);
+            
             using (var ctx = builder.Build())
             {
                 //BuiltInTypes.Run(ctx);
-                //new StringPerfComparison().Run(ctx);
-                new SimpleObjecttPerfComparison().Run(ctx);
+                new StringPerfComparison().Run(ctx);
+                new SimpleObjectPerfComparison().Run(ctx);
+                new MediumObjectPerfComparison().Run(ctx);
             }
         }
     }

@@ -22,16 +22,18 @@ namespace com.github.zvreifnitz.JsonLib.Parser
     using System.Collections.Generic;
     using System.IO;
     using System.Text;
+    using System.Globalization;
 
     internal sealed class JsonReader : IJsonReader, IDisposable
     {
         private readonly TextReader _reader;
         private readonly Stack<Mode> _modeStack;
         private readonly StringBuilder _intermediateValue;
-        private char _prevChar;
-        private char _currChar;
+
+        private JsonToken? _expToken;
         private JsonToken _currToken;
-        private string _currentValue;
+        private char _currChar;
+        private string _currValue;
         private bool _moveToNextToken = true;
         private bool _moveToNextChar = true;
 
@@ -39,48 +41,13 @@ namespace com.github.zvreifnitz.JsonLib.Parser
         {
             _reader = reader;
             _intermediateValue = new StringBuilder(127);
-            _modeStack = new Stack<Mode>(127);
+            _modeStack = new Stack<Mode>(31);
             _modeStack.Push(Mode.Unspecified);
         }
 
         public JsonToken GetNextToken()
         {
-            while (true)
-            {
-                if (MoveToNextToken)
-                {
-                    if (MoveToNextChar)
-                    {
-                        var nextCharTmp = ReadNextChar();
-                        if (nextCharTmp == null)
-                        {
-                            if (CurrentMode == Mode.Number)
-                            {
-                                var tmp = ProcessChar_NumberMode(true);
-                                if (tmp == null)
-                                {
-                                    return ExceptionHelper.ThrowEndOfStreamException<JsonToken>();
-                                }
-                                _currToken = tmp.Value;
-                                return _currToken;
-                            }
-                            return ExceptionHelper.ThrowEndOfStreamException<JsonToken>();
-                        }
-                        _prevChar = _currChar;
-                        _currChar = nextCharTmp.Value;
-                    }
-                    var result = ProcessChar();
-                    if (result != null)
-                    {
-                        _currToken = result.Value;
-                        return _currToken;
-                    }
-                }
-                else
-                {
-                    return _currToken;
-                }
-            }
+            return _currToken = MoveToNextToken() ? ReadNextToken() : _currToken;
         }
 
         public void RepeatLastToken()
@@ -88,233 +55,354 @@ namespace com.github.zvreifnitz.JsonLib.Parser
             _moveToNextToken = false;
         }
 
-        private void RepeatLastChar()
+        public string ReadValue()
         {
-            _moveToNextChar = false;
-        }
-
-        private char? ReadNextChar()
-        {
-            var nextCharInt = _reader.Read();
-            return ((nextCharInt == -1) ? (char?)null : (char)nextCharInt);
+            return _currValue;
         }
 
         public void Dispose()
         {
         }
 
-        private JsonToken? ProcessChar()
+        private char GetNextChar()
+        {
+            return _currChar = MoveToNextChar() ? ReadNextChar() : _currChar;
+        }
+
+        private char? PeekNextChar()
+        {
+            var nextCharInt = _reader.Peek();
+            return nextCharInt == -1
+                ? (char?)null
+                : (char)nextCharInt;
+        }
+
+        public void RepeatLastChar()
+        {
+            _moveToNextChar = false;
+        }
+
+        private char ReadNextChar()
+        {
+            var nextCharInt = _reader.Read();
+            return nextCharInt == -1
+                ? ExceptionHelper.ThrowEndOfStreamException<char>()
+                : (char)nextCharInt;
+        }
+
+        private JsonToken ReadNextToken()
+        {
+            return ReadExpectedToken() ?? ReadUnexpectedToken();
+        }
+
+        private JsonToken? ReadExpectedToken()
+        {
+            if (_expToken == null)
+            {
+                return null;
+            }
+            var token = _expToken.Value;
+            _expToken = null;
+            switch (token)
+            {
+                case JsonToken.String:
+                    return ReadString(JsonToken.Colon);
+                case JsonToken.Colon:
+                    return GetNextChar() == JsonLiterals.Colon
+                        ? JsonToken.Colon
+                        : ExceptionHelper.ThrowInvalidJsonException<JsonToken>();
+                case JsonToken.Comma:
+                    return GetNextChar() == JsonLiterals.Comma
+                        ? JsonToken.Comma
+                        : ExceptionHelper.ThrowInvalidJsonException<JsonToken>();
+                default:
+                    return null;
+            }
+        }
+
+        private JsonToken ReadUnexpectedToken()
         {
             switch (CurrentMode)
             {
-                case Mode.String: return ProcessChar_StringMode();
-                case Mode.Boolean: return ProcessChar_BooleanMode();
-                case Mode.Null: return ProcessChar_NullMode();
-                case Mode.Number: return ProcessChar_NumberMode(false);
-                case Mode.Object: return ProcessChar_ObjectMode();
-                case Mode.Array: return ProcessChar_ArrayMode();
-                default: return ProcessChar_UnspecifiedMode();
+                case Mode.Object:
+                    return ReadUnexpectedToken_Object();
+                case Mode.Array:
+                    return ReadUnexpectedToken_Array();
+                default:
+                    return ReadUnexpectedToken_Unspecified();
             }
         }
 
-        private JsonToken? ProcessChar_ArrayMode()
+        private JsonToken ReadUnexpectedToken_Object()
         {
-            _currentValue = null;
-            if (_currChar == ',')
+            var currChar = GetNextChar();
+            if (currChar == JsonLiterals.Comma)
             {
+                _expToken = JsonToken.String;
                 return JsonToken.Comma;
             }
-            if (_currChar == ']')
-            {
-                _modeStack.Pop();
-                return JsonToken.ArrayEnd;
-            }
-            return ProcessChar_Default();
-        }
-
-        private JsonToken? ProcessChar_ObjectMode()
-        {
-            _currentValue = null;
-            if (_currChar == ',')
-            {
-                return JsonToken.Comma;
-            }
-            if (_currChar == ':')
-            {
-                return JsonToken.Colon;
-            }
-            if (_currChar == '}')
+            if (currChar == JsonLiterals.ObjectEnd)
             {
                 _modeStack.Pop();
                 return JsonToken.ObjectEnd;
             }
-            return ProcessChar_Default();
-        }
-
-        private JsonToken? ProcessChar_NumberMode(bool forceEnd)
-        {
-            var currentChar = forceEnd ? '!' : _currChar;
-            if (char.IsDigit(currentChar) || currentChar == '.' ||
-                currentChar == '-' || currentChar == '+' ||
-                currentChar == 'e' || currentChar == 'E')
-            {
-                _intermediateValue.Append(_currChar);
-                return null;
-            }
-            _currentValue = _intermediateValue.ToString();
-            _intermediateValue.Clear();
-            _modeStack.Pop();
             RepeatLastChar();
-            return JsonToken.Number;
+            return ReadUnexpectedToken_Unspecified();
         }
 
-        private JsonToken? ProcessChar_NullMode()
+        private JsonToken ReadUnexpectedToken_Array()
         {
-            _currentValue = null;
-            _intermediateValue.Append(_currChar);
-            if (_intermediateValue.Length < 4)
+            var currChar = GetNextChar();
+            if (currChar == JsonLiterals.Comma)
             {
-                return null;
+                return JsonToken.Comma;
             }
-            if (_intermediateValue.ToString() != JsonLiterals.Null)
+            if (currChar == JsonLiterals.ArrayEnd)
             {
+                _modeStack.Pop();
+                return JsonToken.ArrayEnd;
+            }
+            RepeatLastChar();
+            return ReadUnexpectedToken_Unspecified();
+        }
+
+        private JsonToken ReadUnexpectedToken_Unspecified()
+        {
+            while (true)
+            {
+                var currChar = GetNextChar();
+                if (char.IsWhiteSpace(currChar))
+                {
+                    continue;
+                }
+                if (currChar == JsonLiterals.QuotationMark)
+                {
+                    RepeatLastChar();
+                    return ReadString(null);
+                }
+                if (currChar == JsonLiterals.ObjectStart)
+                {
+                    _modeStack.Push(Mode.Object);
+                    _expToken = JsonToken.String;
+                    return JsonToken.ObjectStart;
+                }
+                if (char.IsDigit(currChar) || currChar == '-')
+                {
+                    RepeatLastChar();
+                    return ReadNumber();
+                }
+                if (currChar == 't' || currChar == 'f')
+                {
+                    RepeatLastChar();
+                    return ReadBoolean();
+                }
+                if (currChar == 'n')
+                {
+                    RepeatLastChar();
+                    return ReadNull();
+                }
+                if (currChar == JsonLiterals.ArrayStart)
+                {
+                    _modeStack.Push(Mode.Array);
+                    return JsonToken.ArrayStart;
+                }
                 return ExceptionHelper.ThrowInvalidJsonException<JsonToken>();
             }
-            _intermediateValue.Clear();
-            _modeStack.Pop();
-            return JsonToken.Null;
         }
 
-        private JsonToken? ProcessChar_BooleanMode()
+        private JsonToken ReadString(JsonToken? expToken)
         {
-            _currentValue = null;
-            _intermediateValue.Append(_currChar);
-            switch (_intermediateValue.Length)
+            try
             {
-                case 4:
-                    if (_intermediateValue.ToString() == JsonLiterals.True)
+                var currChar = GetNextChar();
+                if (currChar != JsonLiterals.QuotationMark)
+                {
+                    return ExceptionHelper.ThrowInvalidJsonException<JsonToken>();
+                }
+                _expToken = expToken;
+
+                while (true)
+                {
+                    currChar = GetNextChar();
+                    if (currChar == JsonLiterals.ReverseSolidus)
                     {
-                        _intermediateValue.Clear();
-                        _modeStack.Pop();
-                        return JsonToken.True;
+                        currChar = GetNextChar();
+                        switch (currChar)
+                        {
+                            case JsonLiterals.QuotationMark:
+                                _intermediateValue.Append(JsonLiterals.QuotationMark);
+                                break;
+                            case JsonLiterals.ReverseSolidus:
+                                _intermediateValue.Append(JsonLiterals.ReverseSolidus);
+                                break;
+                            case JsonLiterals.Solidus:
+                                _intermediateValue.Append(JsonLiterals.Solidus);
+                                break;
+                            case 'b':
+                                _intermediateValue.Append(JsonLiterals.Backspace);
+                                break;
+                            case 'f':
+                                _intermediateValue.Append(JsonLiterals.Formfeed);
+                                break;
+                            case 'n':
+                                _intermediateValue.Append(JsonLiterals.Newline);
+                                break;
+                            case 'r':
+                                _intermediateValue.Append(JsonLiterals.CarriageReturn);
+                                break;
+                            case 't':
+                                _intermediateValue.Append(JsonLiterals.HorizontalTab);
+                                break;
+                            case 'u':
+                                string tmp = "";
+                                for (int i = 0; i < 4; i++)
+                                {
+                                    tmp += GetNextChar();
+                                }
+                                _intermediateValue.Append(UnicodeEscapedStringToChar(tmp));
+                                break;
+                            default:
+                                return ExceptionHelper.ThrowInvalidJsonException<JsonToken>();
+                        }
+                    }
+                    else if (currChar == JsonLiterals.QuotationMark)
+                    {
+                        break;
                     }
                     else
                     {
-                        return null;
+                        _intermediateValue.Append(currChar);
                     }
-                case 5:
-                    if (_intermediateValue.ToString() == JsonLiterals.False)
+                }
+                _currValue = _intermediateValue.ToString();
+                return JsonToken.String;
+            }
+            finally
+            {
+                _intermediateValue.Clear();
+            }
+        }
+
+        private JsonToken ReadNumber()
+        {
+            try
+            {
+                var currChar = GetNextChar();
+                if (char.IsDigit(currChar) || currChar == '-')
+                {
+                    _intermediateValue.Append(currChar);
+                }
+                else
+                {
+                    return ExceptionHelper.ThrowInvalidJsonException<JsonToken>();
+                }
+
+                while (true)
+                {
+                    var peekChar = PeekNextChar();
+                    if (peekChar == null)
                     {
-                        _intermediateValue.Clear();
-                        _modeStack.Pop();
-                        return JsonToken.False;
+                        _currValue = _intermediateValue.ToString();
+                        return JsonToken.Number;
                     }
                     else
                     {
-                        return ExceptionHelper.ThrowInvalidJsonException<JsonToken>();
+                        currChar = peekChar.Value;
+                        if (char.IsDigit(currChar) || currChar == '.' ||
+                            currChar == '-' || currChar == '+' ||
+                            currChar == 'e' || currChar == 'E')
+                        {
+                            _intermediateValue.Append(GetNextChar());
+                            continue;
+                        }
+                        _currValue = _intermediateValue.ToString();
+                        return JsonToken.Number;
                     }
-                default: return null;
+                }
+            }
+            finally
+            {
+                _intermediateValue.Clear();
             }
         }
 
-        private JsonToken? ProcessChar_StringMode()
+        private JsonToken ReadBoolean()
         {
-            _intermediateValue.Append(_currChar);
-            if (_currChar != JsonHelper.QuotationMark || _prevChar == JsonHelper.ReverseSolidus)
+            try
             {
-                return null;
+                for (int i = 0; i < 4; i++)
+                {
+                    _intermediateValue.Append(GetNextChar());
+                }
+                if (JsonLiterals.True == _intermediateValue.ToString())
+                {
+                    return JsonToken.True;
+                }
+                _intermediateValue.Append(GetNextChar());
+                return JsonLiterals.False == _intermediateValue.ToString()
+                    ? JsonToken.False
+                    : ExceptionHelper.ThrowInvalidJsonException<JsonToken>();
             }
-            _currentValue = _intermediateValue.ToString().DecodeFromJsonString();
-            _intermediateValue.Clear();
-            _modeStack.Pop();
-            return JsonToken.String;
-        }
-
-        private JsonToken? ProcessChar_UnspecifiedMode()
-        {
-            _currentValue = null;
-            return ProcessChar_Default();
-        }
-
-        private JsonToken? ProcessChar_Default()
-        {
-            if (char.IsWhiteSpace(_currChar))
+            finally
             {
-                return null;
-            }
-            if (_currChar == '"')
-            {
-                _modeStack.Push(Mode.String);
-                _intermediateValue.Append(_currChar);
-                return null;
-            }
-            if (_currChar == '{')
-            {
-                _modeStack.Push(Mode.Object);
-                return JsonToken.ObjectStart;
-            }
-            if (char.IsDigit(_currChar) || _currChar == '-')
-            {
-                _modeStack.Push(Mode.Number);
-                _intermediateValue.Append(_currChar);
-                return null;
-            }
-            if (_currChar == 't'||_currChar == 'f')
-            {
-                _modeStack.Push(Mode.Boolean);
-                _intermediateValue.Append(_currChar);
-                return null;
-            }
-            if (_currChar == 'n')
-            {
-                _modeStack.Push(Mode.Null);
-                _intermediateValue.Append(_currChar);
-                return null;
-            }
-            if (_currChar == '[')
-            {
-                _modeStack.Push(Mode.Array);
-                return JsonToken.ArrayStart;
-            }
-            return ExceptionHelper.ThrowInvalidJsonException<JsonToken>();
-        }
-
-        private bool MoveToNextToken
-        {
-            get
-            {
-                var result = _moveToNextToken;
-                _moveToNextToken = true;
-                return result;
+                _intermediateValue.Clear();
             }
         }
 
-        private bool MoveToNextChar
+        private JsonToken ReadNull()
         {
-            get
+            try
             {
-                var result = _moveToNextChar;
-                _moveToNextChar = true;
-                return result;
+                for (int i = 0; i < 4; i++)
+                {
+                    _intermediateValue.Append(GetNextChar());
+                }
+                return JsonLiterals.Null == _intermediateValue.ToString()
+                    ? JsonToken.Null
+                    : ExceptionHelper.ThrowInvalidJsonException<JsonToken>();
             }
+            finally
+            {
+                _intermediateValue.Clear();
+            }
+        }
+
+        private bool MoveToNextToken()
+        {
+            if (_moveToNextToken)
+            {
+                return true;
+            }
+            _moveToNextToken = true;
+            return false;
+        }
+
+        private bool MoveToNextChar()
+        {
+            if (_moveToNextChar)
+            {
+                return true;
+            }
+            _moveToNextChar = true;
+            return false;
         }
 
         private Mode CurrentMode => _modeStack.Peek();
 
-        public string ReadValue()
+        private static char UnicodeEscapedStringToChar(string input)
         {
-            return _currentValue;
+            if (int.TryParse(input, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out int result))
+            {
+                return (char)result;
+            }
+            return ExceptionHelper.ThrowInvalidJsonException<char>();
         }
 
         private enum Mode
         {
             Unspecified,
-            String,
-            Number,
             Object,
-            Array,
-            Boolean,
-            Null
+            Array
         }
     }
 }

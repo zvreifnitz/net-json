@@ -24,20 +24,28 @@ namespace com.github.zvreifnitz.JsonLib.Parser
     {
         internal const char QuotationMark = '"';
         internal const string QuotationMarkJson = @"\""";
+        
         internal const char ReverseSolidus = '\\';
         internal const string ReverseSolidusJson = @"\\";
+        
         internal const char Solidus = '/';
         internal const string SolidusJson = @"\/";
+        
         internal const char Backspace = '\b';
         internal const string BackspaceJson = @"\b";
+        
         internal const char Formfeed = '\f';
         internal const string FormfeedJson = @"\f";
+        
         internal const char Newline = '\n';
         internal const string NewlineJson = @"\n";
+        
         internal const char CarriageReturn = '\r';
         internal const string CarriageReturnJson = @"\r";
+        
         internal const char HorizontalTab = '\t';
         internal const string HorizontalTabJson = @"\t";
+        
         internal const string UnicodeJson = @"\u";
 
         public static string EncodeToJsonString(this string input)

@@ -48,14 +48,14 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
 
             private readonly IJsonMapper<TKey> _keyMapper;
             private readonly IJsonMapper<TValue> _valueMapper;
-            private readonly string _startLiteral;
-            private readonly string _endLiteral;
+            private readonly char _startLiteral;
+            private readonly char _endLiteral;
             private readonly JsonToken _startToken;
             private readonly JsonToken _endToken;
 
             protected DictionaryMapperBase(
                 IJsonSerializator<TKey> keySerializator, IJsonSerializator<TValue> valueSerializator,
-                string startLiteral, string endLiteral, JsonToken startToken, JsonToken endToken)
+                char startLiteral, char endLiteral, JsonToken startToken, JsonToken endToken)
             {
                 _keyMapper = keySerializator.Mapper;
                 _valueMapper = valueSerializator.Mapper;

@@ -15,26 +15,75 @@
  *
  */
 
+using System.Collections.Generic;
+
 namespace JsonLibExample
 {
     using Newtonsoft.Json;
     using System;
     using com.github.zvreifnitz.JsonLib;
 
-    public class SimpleObjectPerfComparison : PerfComparisonBase
+    public class MediumObjectPerfComparison : PerfComparisonBase
     {
-        private static readonly SimpleObject CleanValue =
-            new SimpleObject
+        private static readonly MediumObject CleanValue =
+            new MediumObject
             {
-                IntValue = 1,
-                GuidValue = Guid.Parse("a50229d4-220d-481e-969e-772f3797ae85"),
-                StringValue = "ABC"
+                Name = "ABC",
+                MaybeInt = null,
+                SimpleObjectList = new List<SimpleObject>
+                {
+                    new SimpleObject
+                    {
+                        IntValue = 1,
+                        GuidValue = Guid.Parse("a50229d4-220d-481e-969e-772f3797ae81"),
+                        StringValue = "ABC"
+                    },
+                    new SimpleObject
+                    {
+                        IntValue = 2,
+                        GuidValue = Guid.Parse("a50229d4-220d-481e-969e-772f3797ae82"),
+                        StringValue = "ABC"
+                    },
+                    new SimpleObject
+                    {
+                        IntValue = 3,
+                        GuidValue = Guid.Parse("a50229d4-220d-481e-969e-772f3797ae83"),
+                        StringValue = "ABC"
+                    }
+                },
+                SimpleObjectDictionary = new Dictionary<string, SimpleObject>
+                {
+                    {
+                        "1", new SimpleObject
+                        {
+                            IntValue = 1,
+                            GuidValue = Guid.Parse("a50229d4-220d-481e-969e-772f3797ae81"),
+                            StringValue = "ABC"
+                        }
+                    },
+                    {
+                        "2", new SimpleObject
+                        {
+                            IntValue = 2,
+                            GuidValue = Guid.Parse("a50229d4-220d-481e-969e-772f3797ae82"),
+                            StringValue = "ABC"
+                        }
+                    },
+                    {
+                        "3", new SimpleObject
+                        {
+                            IntValue = 3,
+                            GuidValue = Guid.Parse("a50229d4-220d-481e-969e-772f3797ae83"),
+                            StringValue = "ABC"
+                        }
+                    }
+                }
             };
 
         private static readonly string JsonValue = CleanValue.ToString();
 
         public override void Run(IJsonSerializators ctx)
-        {  
+        {
             long serNewtonsoftJson = 0L;
             string serNewtonsoftJsonExample = null;
             long serJsonLib = 0L;
@@ -50,9 +99,9 @@ namespace JsonLibExample
             }
 
             long deserNewtonsoftJson = 0L;
-            SimpleObject deserNewtonsoftJsonExample = null;
+            MediumObject deserNewtonsoftJsonExample = null;
             long deserJsonLib = 0L;
-            SimpleObject deserJsonLibExample = null;
+            MediumObject deserJsonLibExample = null;
             for (int i = 0; i < 10; i++)
             {
                 var njResult = DeserializeTimeNewtonsoftJson();
@@ -67,7 +116,7 @@ namespace JsonLibExample
             long totalJsonLib = serJsonLib + deserJsonLib;
 
             Console.Out.WriteLine("################################################");
-            Console.Out.WriteLine("SimpleObject perf comparison");
+            Console.Out.WriteLine("MediumObject perf comparison");
             Console.Out.WriteLine("################################################");
             Console.Out.WriteLine("Newtonsoft.Json");
             Console.Out.WriteLine("================================================");
@@ -91,25 +140,25 @@ namespace JsonLibExample
 
         private Tuple<long, string> SerializeTimeNewtonsoftJson()
         {
-            SerializeDelegate<SimpleObject> serializer = JsonConvert.SerializeObject;
+            SerializeDelegate<MediumObject> serializer = JsonConvert.SerializeObject;
             return SerializeTime(serializer, CleanValue);
         }
 
-        private Tuple<long, SimpleObject> DeserializeTimeNewtonsoftJson()
+        private Tuple<long, MediumObject> DeserializeTimeNewtonsoftJson()
         {
-            DeserializeDelegate<SimpleObject> deserializer = JsonConvert.DeserializeObject<SimpleObject>;
+            DeserializeDelegate<MediumObject> deserializer = JsonConvert.DeserializeObject<MediumObject>;
             return DeserializeTime(deserializer, JsonValue);
         }
 
         private Tuple<long, string> SerializeTimeJsonLib(IJsonSerializators ctx)
         {
-            SerializeDelegate<SimpleObject> serializer = ctx.GetJsonSerializator<SimpleObject>().ToJson;
+            SerializeDelegate<MediumObject> serializer = ctx.GetJsonSerializator<MediumObject>().ToJson;
             return SerializeTime(serializer, CleanValue);
         }
 
-        private Tuple<long, SimpleObject> DeserializeTimeJsonLib(IJsonSerializators ctx)
+        private Tuple<long, MediumObject> DeserializeTimeJsonLib(IJsonSerializators ctx)
         {
-            DeserializeDelegate<SimpleObject> deserializer = ctx.GetJsonSerializator<SimpleObject>().FromJson;
+            DeserializeDelegate<MediumObject> deserializer = ctx.GetJsonSerializator<MediumObject>().FromJson;
             return DeserializeTime(deserializer, JsonValue);
         }
     }

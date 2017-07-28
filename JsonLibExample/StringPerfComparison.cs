@@ -64,21 +64,21 @@ namespace JsonLibExample
             Console.Out.WriteLine("################################################");
             Console.Out.WriteLine("Newtonsoft.Json");
             Console.Out.WriteLine("================================================");
-            Console.Out.WriteLine("Serialize: {0}, Example: {1}", serNewtonsoftJson, serNewtonsoftJsonExample);
+            Console.Out.WriteLine("  Serialize: {0}, Example: {1}", serNewtonsoftJson, serNewtonsoftJsonExample);
             Console.Out.WriteLine("Deserialize: {0}, Example: {1}", deserNewtonsoftJson, deserNewtonsoftJsonExample);
-            Console.Out.WriteLine("Total: {0}", totalNewtonsoftJson);
+            Console.Out.WriteLine("      Total: {0}", totalNewtonsoftJson);
             Console.Out.WriteLine("################################################");
             Console.Out.WriteLine("JsonLib");
             Console.Out.WriteLine("================================================");
-            Console.Out.WriteLine("Serialize: {0}, Example: {1}", serJsonLib, serJsonLibExample);
+            Console.Out.WriteLine("  Serialize: {0}, Example: {1}", serJsonLib, serJsonLibExample);
             Console.Out.WriteLine("Deserialize: {0}, Example: {1}", deserJsonLib, deserJsonLibExample);
-            Console.Out.WriteLine("Total: {0}", totalJsonLib);
+            Console.Out.WriteLine("      Total: {0}", totalJsonLib);
             Console.Out.WriteLine("################################################");
             Console.Out.WriteLine("Ratio");
             Console.Out.WriteLine("================================================");
-            Console.Out.WriteLine("Serialize: {0}", (double)serNewtonsoftJson / serJsonLib);
+            Console.Out.WriteLine("  Serialize: {0}", (double)serNewtonsoftJson / serJsonLib);
             Console.Out.WriteLine("Deserialize: {0}", (double)deserNewtonsoftJson / deserJsonLib);
-            Console.Out.WriteLine("Total: {0}", (double)totalNewtonsoftJson / totalJsonLib);
+            Console.Out.WriteLine("      Total: {0}", (double)totalNewtonsoftJson / totalJsonLib);
             Console.Out.WriteLine();
         }
 

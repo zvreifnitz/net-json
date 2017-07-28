@@ -26,6 +26,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Object
         {
             return new ObjectMapper<T>(
                 ExpressionHelper.CreateDefaultConstructor<T>(),
+                new Dictionary<string, IJsonGetterSetter<T>>(),
                 new Dictionary<string, IJsonGetterSetter<T>>());
         }
     }

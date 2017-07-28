@@ -22,11 +22,40 @@ namespace com.github.zvreifnitz.JsonLib.Parser
         internal const string Null = "null";
         internal const string True = "true";
         internal const string False = "false";
-        internal const string ArrayStart = "[";
-        internal const string ArrayEnd = "]";
-        internal const string ObjectStart = "{";
-        internal const string ObjectEnd = "}";
-        internal const string Comma = ",";
-        internal const string Colon = ":";
+        
+        internal const char ArrayStart = '[';
+        internal const char ArrayEnd = ']';
+        
+        internal const char ObjectStart = '{';
+        internal const char ObjectEnd = '}';
+        
+        internal const char Comma = ',';
+        internal const char Colon = ':';
+        
+        internal const char QuotationMark = '"';
+        internal const string QuotationMarkJson = @"\""";
+        
+        internal const char ReverseSolidus = '\\';
+        internal const string ReverseSolidusJson = @"\\";
+        
+        internal const char Solidus = '/';
+        internal const string SolidusJson = @"\/";
+        
+        internal const char Backspace = '\b';
+        internal const string BackspaceJson = @"\b";
+        
+        internal const char Formfeed = '\f';
+        internal const string FormfeedJson = @"\f";
+        
+        internal const char Newline = '\n';
+        internal const string NewlineJson = @"\n";
+        
+        internal const char CarriageReturn = '\r';
+        internal const string CarriageReturnJson = @"\r";
+        
+        internal const char HorizontalTab = '\t';
+        internal const string HorizontalTabJson = @"\t";
+        
+        internal const string UnicodeJson = @"\u";
     }
 }

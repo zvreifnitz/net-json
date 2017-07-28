@@ -21,5 +21,6 @@ namespace com.github.zvreifnitz.JsonLib
     {
         void EncodeAndWrite(string value);
         void WriteRaw(string value);
+        void WriteRaw(char value);
     }
 }

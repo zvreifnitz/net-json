@@ -15,6 +15,8 @@
  *
  */
 
+using com.github.zvreifnitz.JsonLib.Parser;
+
 namespace com.github.zvreifnitz.JsonLib.Mapper.Object
 {
     using System;
@@ -24,9 +26,11 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Object
 
     internal sealed class ObjectMapperBuilder<TClass> : IObjectMapperBuilder<TClass>
     {
-        private readonly Dictionary<string, IJsonGetterSetter<TClass>> _getterSetters =
+        private readonly Dictionary<string, IJsonGetterSetter<TClass>> _getters =
             new Dictionary<string, IJsonGetterSetter<TClass>>();
-
+        private readonly Dictionary<string, IJsonGetterSetter<TClass>> _setters =
+            new Dictionary<string, IJsonGetterSetter<TClass>>();
+        
         private Func<TClass> _instanceProvider;
 
         public IObjectMapperBuilder<TClass> NewInstanceProvider(
@@ -46,7 +50,8 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Object
         public IObjectMapperBuilder<TClass> AddProperty<TProp>(
             Expression<Func<TClass, TProp>> property, string jsonPropName)
         {
-            _getterSetters.Add(jsonPropName, JsonGetterSetter<TClass, TProp>.Build(property));
+            _getters.Add(jsonPropName.EncodeToJsonString(), JsonGetter<TClass, TProp>.Build(property));
+            _setters.Add(jsonPropName, JsonSetter<TClass, TProp>.Build(property));
             return this;
         }
 
@@ -60,7 +65,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Object
         public IObjectMapperBuilder<TClass> AddReadOnlyProperty<TProp>(
             Expression<Func<TClass, TProp>> property, string jsonPropName)
         {
-            _getterSetters.Add(jsonPropName, JsonGetter<TClass, TProp>.Build(property));
+            _getters.Add(jsonPropName.EncodeToJsonString(), JsonGetter<TClass, TProp>.Build(property));
             return this;
         }
 
@@ -74,7 +79,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Object
         public IObjectMapperBuilder<TClass> AddWriteOnlyProperty<TProp>(
             Expression<Func<TClass, TProp>> property, string jsonPropName)
         {
-            _getterSetters.Add(jsonPropName, JsonSetter<TClass, TProp>.Build(property));
+            _setters.Add(jsonPropName, JsonSetter<TClass, TProp>.Build(property));
             return this;
         }
 
@@ -82,7 +87,8 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Object
         {
             return new ObjectMapper<TClass>(
                 _instanceProvider ?? ExpressionHelper.CreateDefaultConstructor<TClass>(),
-                new Dictionary<string, IJsonGetterSetter<TClass>>(_getterSetters));
+                new Dictionary<string, IJsonGetterSetter<TClass>>(_getters),
+                new Dictionary<string, IJsonGetterSetter<TClass>>(_setters));
         }
     }
 }
