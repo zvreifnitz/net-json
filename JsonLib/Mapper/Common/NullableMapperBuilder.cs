@@ -58,11 +58,11 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Common
 
             public bool CanDeserialize => true;
 
-            public void Init(IJsonSerializators context)
+            public void Init(IJsonContext context)
             {
             }
 
-            public void ToJson(IJsonSerializators context, IJsonWriter writer, T? instance)
+            public void ToJson(IJsonContext context, IJsonWriter writer, T? instance)
             {
                 if (instance == null)
                 {
@@ -74,7 +74,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Common
                 }
             }
 
-            public T? FromJson(IJsonSerializators context, IJsonReader reader)
+            public T? FromJson(IJsonContext context, IJsonReader reader)
             {
                 var token = reader.GetNextToken();
                 if (token == JsonToken.Null)

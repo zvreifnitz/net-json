@@ -42,6 +42,7 @@ namespace com.github.zvreifnitz.JsonLib
         Unexpected,
         EndOfStream,
         TypeMismatch,
-        NumberParsingFail
+        NumberParsingFail,
+        InvalidPropertyExpression
     }
 }

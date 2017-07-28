@@ -34,7 +34,7 @@ namespace JsonLibExample
         private static readonly Random Random = new Random();
         private readonly object _tickLock = new object();
 
-        public abstract void Run(IJsonSerializators ctx);
+        public abstract void Run(IJsonContext ctx);
 
         protected Tuple<long, string> SerializeTime<T>(SerializeDelegate<T> serializer, T input)
         {

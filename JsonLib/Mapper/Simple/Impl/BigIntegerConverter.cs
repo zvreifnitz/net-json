@@ -21,12 +21,12 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Simple.Impl
     
     internal sealed class BigIntegerConverter : ConverterBase<BigInteger>
     {
-        public override void ToJson(IJsonSerializators context, IJsonWriter writer, BigInteger instance)
+        public override void ToJson(IJsonContext context, IJsonWriter writer, BigInteger instance)
         {
             writer.WriteRaw(instance.ToString(DefaultCultureInfo));
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, out BigInteger instance)
+        public override void FromJson(IJsonContext context, IJsonReader reader, out BigInteger instance)
         {
             if (reader.GetNextToken() != JsonToken.Number ||
                 !BigInteger.TryParse(reader.ReadValue(), IntegerNumberStyle, DefaultCultureInfo, out instance))

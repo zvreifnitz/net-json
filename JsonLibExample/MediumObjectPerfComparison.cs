@@ -15,13 +15,12 @@
  *
  */
 
-using System.Collections.Generic;
-
 namespace JsonLibExample
 {
     using Newtonsoft.Json;
     using System;
     using com.github.zvreifnitz.JsonLib;
+    using System.Collections.Generic;
 
     public class MediumObjectPerfComparison : PerfComparisonBase
     {
@@ -77,14 +76,20 @@ namespace JsonLibExample
                             StringValue = "ABC"
                         }
                     }
+                },
+                LongSet = new HashSet<long?>
+                {
+                    1,
+                    null,
+                    3
                 }
             };
 
         private const string JsonValue =
-                "{\"Name\":\"ABC\",\"MaybeInt\":null,\"SimpleObjectList\":[{\"IntValue\":1,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae81\",\"StringValue\":\"ABC\"},{\"IntValue\":2,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae82\",\"StringValue\":\"ABC\"},{\"IntValue\":3,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae83\",\"StringValue\":\"ABC\"}],\"SimpleObjectDictionary\":{\"1\":{\"IntValue\":1,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae81\",\"StringValue\":\"ABC\"},\"2\":{\"IntValue\":2,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae82\",\"StringValue\":\"ABC\"},\"3\":{\"IntValue\":3,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae83\",\"StringValue\":\"ABC\"}}}"
+                "{\"Name\":\"ABC\",\"MaybeInt\":null,\"SimpleObjectList\":[{\"IntValue\":1,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae81\",\"StringValue\":\"ABC\"},{\"IntValue\":2,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae82\",\"StringValue\":\"ABC\"},{\"IntValue\":3,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae83\",\"StringValue\":\"ABC\"}],\"SimpleObjectDictionary\":{\"1\":{\"IntValue\":1,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae81\",\"StringValue\":\"ABC\"},\"2\":{\"IntValue\":2,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae82\",\"StringValue\":\"ABC\"},\"3\":{\"IntValue\":3,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae83\",\"StringValue\":\"ABC\"}},\"LongSet\":[1,null,3]}"
             ;
 
-        public override void Run(IJsonSerializators ctx)
+        public override void Run(IJsonContext ctx)
         {
             long serNewtonsoftJson = 0L;
             string serNewtonsoftJsonExample = null;
@@ -159,15 +164,15 @@ namespace JsonLibExample
             return DeserializeTime(deserializer, JsonValue);
         }
 
-        private Tuple<long, string> SerializeTimeJsonLib(IJsonSerializators ctx)
+        private Tuple<long, string> SerializeTimeJsonLib(IJsonContext ctx)
         {
-            SerializeDelegate<MediumObject> serializer = ctx.GetJsonSerializator<MediumObject>().ToJson;
+            SerializeDelegate<MediumObject> serializer = ctx.GetSerializator<MediumObject>().ToJson;
             return SerializeTime(serializer, CleanValue);
         }
 
-        private Tuple<long, MediumObject> DeserializeTimeJsonLib(IJsonSerializators ctx)
+        private Tuple<long, MediumObject> DeserializeTimeJsonLib(IJsonContext ctx)
         {
-            DeserializeDelegate<MediumObject> deserializer = ctx.GetJsonSerializator<MediumObject>().FromJson;
+            DeserializeDelegate<MediumObject> deserializer = ctx.GetSerializator<MediumObject>().FromJson;
             return DeserializeTime(deserializer, JsonValue);
         }
     }

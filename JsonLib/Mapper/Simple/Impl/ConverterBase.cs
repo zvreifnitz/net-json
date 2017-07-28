@@ -15,12 +15,12 @@
  *
  */
 
-using System.Globalization;
-using com.github.zvreifnitz.JsonLib.Helper;
-using com.github.zvreifnitz.JsonLib.Parser;
-
 namespace com.github.zvreifnitz.JsonLib.Mapper.Simple.Impl
 {
+    using System.Globalization;
+    using Helper;
+    using Parser;
+
     internal abstract class ConverterBase
     {
         internal const string Null = JsonLiterals.Null;
@@ -34,9 +34,9 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Simple.Impl
 
     internal abstract class ConverterBase<T> : ConverterBase, ISimpleConverter<T>
     {
-        public abstract void ToJson(IJsonSerializators context, IJsonWriter writer, T instance);
+        public abstract void ToJson(IJsonContext context, IJsonWriter writer, T instance);
 
-        public abstract void FromJson(IJsonSerializators context, IJsonReader reader, out T instance);
+        public abstract void FromJson(IJsonContext context, IJsonReader reader, out T instance);
 
         protected TR ThrowInvalidJsonException<TR>()
         {

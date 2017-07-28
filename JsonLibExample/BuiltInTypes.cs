@@ -23,7 +23,7 @@ namespace JsonLibExample
 
     public static class BuiltInTypes
     {
-        public static void Run(IJsonSerializators ctx)
+        public static void Run(IJsonContext ctx)
         {
             ctx.TestString();
             ctx.TestInt();
@@ -41,9 +41,9 @@ namespace JsonLibExample
             ctx.TestArray();
         }
 
-        private static void TestString(this IJsonSerializators ctx)
+        private static void TestString(this IJsonContext ctx)
         {
-            var serializator = ctx.GetJsonSerializator<string>();
+            var serializator = ctx.GetSerializator<string>();
 
             var input1 = "That is some input string";
             var json1 = serializator.ToJson(input1);
@@ -64,9 +64,9 @@ namespace JsonLibExample
             }
         }
 
-        private static void TestInt(this IJsonSerializators ctx)
+        private static void TestInt(this IJsonContext ctx)
         {
-            var serializator = ctx.GetJsonSerializator<int>();
+            var serializator = ctx.GetSerializator<int>();
 
             var input = 123;
             var json = serializator.ToJson(input);
@@ -78,9 +78,9 @@ namespace JsonLibExample
             }
         }
 
-        private static void TestIntNullable(this IJsonSerializators ctx)
+        private static void TestIntNullable(this IJsonContext ctx)
         {
-            var serializator = ctx.GetJsonSerializator<int?>();
+            var serializator = ctx.GetSerializator<int?>();
 
             var input1 = (int?)123;
             var json1 = serializator.ToJson(input1);
@@ -101,9 +101,9 @@ namespace JsonLibExample
             }
         }
 
-        private static void TestLong(this IJsonSerializators ctx)
+        private static void TestLong(this IJsonContext ctx)
         {
-            var serializator = ctx.GetJsonSerializator<long>();
+            var serializator = ctx.GetSerializator<long>();
 
             var input = 123L;
             var json = serializator.ToJson(input);
@@ -115,9 +115,9 @@ namespace JsonLibExample
             }
         }
 
-        private static void TestLongNullable(this IJsonSerializators ctx)
+        private static void TestLongNullable(this IJsonContext ctx)
         {
-            var serializator = ctx.GetJsonSerializator<long?>();
+            var serializator = ctx.GetSerializator<long?>();
 
             var input1 = (long?)123;
             var json1 = serializator.ToJson(input1);
@@ -139,9 +139,9 @@ namespace JsonLibExample
         }
 
 
-        private static void TestGuid(this IJsonSerializators ctx)
+        private static void TestGuid(this IJsonContext ctx)
         {
-            var serializator = ctx.GetJsonSerializator<Guid>();
+            var serializator = ctx.GetSerializator<Guid>();
 
             var input = Guid.NewGuid();
             var json = serializator.ToJson(input);
@@ -153,9 +153,9 @@ namespace JsonLibExample
             }
         }
 
-        private static void TestGuidNullable(this IJsonSerializators ctx)
+        private static void TestGuidNullable(this IJsonContext ctx)
         {
-            var serializator = ctx.GetJsonSerializator<Guid?>();
+            var serializator = ctx.GetSerializator<Guid?>();
 
             var input1 = (Guid?)Guid.NewGuid();
             var json1 = serializator.ToJson(input1);
@@ -176,9 +176,9 @@ namespace JsonLibExample
             }
         }
 
-        private static void TestChar(this IJsonSerializators ctx)
+        private static void TestChar(this IJsonContext ctx)
         {
-            var serializator = ctx.GetJsonSerializator<char>();
+            var serializator = ctx.GetSerializator<char>();
 
             var input = 'c';
             var json = serializator.ToJson(input);
@@ -190,9 +190,9 @@ namespace JsonLibExample
             }
         }
 
-        private static void TestCharNullable(this IJsonSerializators ctx)
+        private static void TestCharNullable(this IJsonContext ctx)
         {
-            var serializator = ctx.GetJsonSerializator<char?>();
+            var serializator = ctx.GetSerializator<char?>();
 
             var input1 = (char?)'c';
             var json1 = serializator.ToJson(input1);
@@ -213,9 +213,9 @@ namespace JsonLibExample
             }
         }
 
-        private static void TestListOfInt(this IJsonSerializators ctx)
+        private static void TestListOfInt(this IJsonContext ctx)
         {
-            var serializator = ctx.GetJsonSerializator<List<int>>();
+            var serializator = ctx.GetSerializator<List<int>>();
 
             var input1 = new List<int> {246};
             var json1 = serializator.ToJson(input1);
@@ -245,9 +245,9 @@ namespace JsonLibExample
             }
         }
 
-        private static void TestListOfListOfString(this IJsonSerializators ctx)
+        private static void TestListOfListOfString(this IJsonContext ctx)
         {
-            var serializator = ctx.GetJsonSerializator<List<List<string>>>();
+            var serializator = ctx.GetSerializator<List<List<string>>>();
 
             var input1 = new List<List<string>> {new List<string> {"Here is some string!"}};
             var json1 = serializator.ToJson(input1);
@@ -268,9 +268,9 @@ namespace JsonLibExample
             }
         }
 
-        private static void TestDictionaryOfIntInt(this IJsonSerializators ctx)
+        private static void TestDictionaryOfIntInt(this IJsonContext ctx)
         {
-            var serializator = ctx.GetJsonSerializator<Dictionary<int, int>>();
+            var serializator = ctx.GetSerializator<Dictionary<int, int>>();
 
             var input1 = new Dictionary<int, int> {{123, 246}, {456, 81012}};
             var json1 = serializator.ToJson(input1);
@@ -300,9 +300,9 @@ namespace JsonLibExample
             }
         }
 
-        private static void TestDictionaryOfStringInt(this IJsonSerializators ctx)
+        private static void TestDictionaryOfStringInt(this IJsonContext ctx)
         {
-            var serializator = ctx.GetJsonSerializator<Dictionary<string, int>>();
+            var serializator = ctx.GetSerializator<Dictionary<string, int>>();
 
             var input1 = new Dictionary<string, int> {{"a", 246}, {"b", 81012}};
             var json1 = serializator.ToJson(input1);
@@ -332,9 +332,9 @@ namespace JsonLibExample
             }
         }
 
-        private static void TestArray(this IJsonSerializators ctx)
+        private static void TestArray(this IJsonContext ctx)
         {
-            var serializator = ctx.GetJsonSerializator<TimeSpan?[]>();
+            var serializator = ctx.GetSerializator<TimeSpan?[]>();
 
             var input1 = new TimeSpan?[] {TimeSpan.FromMilliseconds(1), null, TimeSpan.FromMilliseconds(3)};
             var json1 = serializator.ToJson(input1);

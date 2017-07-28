@@ -22,7 +22,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Common
     using System.Reflection;
     using Helper;
 
-    internal abstract class DelegatingMapperBuilderBase : IJsonMapperBuilder
+    internal abstract class DelegatingMapperBuilderBase : IRuntimeMapperBuilder
     {
         private readonly MethodInfo _buildReflectionInvoke;
 
@@ -37,7 +37,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Common
 
         protected abstract Type[] GetMethodTypes(Type type, Type delegatingType);
 
-        public bool CanBuild<T>(IJsonSerializators context)
+        public bool CanBuild<T>(IJsonContext context)
         {
             var type = typeof(T);
             if (!IsRequestedTypeSupported(type))
@@ -52,7 +52,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Common
             return context.GetJsonSerializatorReflection(delegatingType) != null;
         }
 
-        public IJsonMapper<T> Build<T>(IJsonSerializators context)
+        public IJsonMapper<T> Build<T>(IJsonContext context)
         {
             var type = typeof(T);
             if (!IsRequestedTypeSupported(type))

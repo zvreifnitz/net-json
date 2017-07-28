@@ -15,16 +15,17 @@
  *
  */
 
-using System.Collections.Generic;
-using System.Text;
-
 namespace JsonLibExample
 {
+    using System.Collections.Generic;
+    
     public class MediumObject
     {
         public string Name { get; set; }
         public int? MaybeInt { get; set; }
         public List<SimpleObject> SimpleObjectList { get; set; }
         public Dictionary<string, SimpleObject> SimpleObjectDictionary { get; set; }
+        public ISet<long?> LongSet { get; set; }
+        public int?[] IntArray { get; set; }
     }
 }

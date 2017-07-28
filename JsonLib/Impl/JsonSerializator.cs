@@ -23,17 +23,20 @@ namespace com.github.zvreifnitz.JsonLib.Impl
 
     internal sealed class JsonSerializator<T> : IJsonSerializator<T>
     {
-        private readonly IJsonSerializators _context;
-
-        internal JsonSerializator(IJsonSerializators context, IJsonMapper<T> mapper)
+        internal JsonSerializator(JsonContext context, IJsonMapper<T> mapper, IRuntimeMapperBuilder builder)
         {
-            _context = context;
+            Context = context;
             Mapper = mapper;
+            Builder = builder;
         }
+
+        internal JsonContext Context { get; }
 
         public bool CanSerialize => Mapper.CanSerialize;
 
         public bool CanDeserialize => Mapper.CanDeserialize;
+
+        public IRuntimeMapperBuilder Builder { get; }
 
         public IJsonMapper<T> Mapper { get; }
 
@@ -51,7 +54,7 @@ namespace com.github.zvreifnitz.JsonLib.Impl
         {
             using (var jsonWriter = new JsonWriter(writer))
             {
-                Mapper.ToJson(_context, jsonWriter, instance);
+                Mapper.ToJson(Context, jsonWriter, instance);
             }
         }
 
@@ -59,7 +62,7 @@ namespace com.github.zvreifnitz.JsonLib.Impl
         {
             using (var jsonReader = new JsonReader(reader))
             {
-                return Mapper.FromJson(_context, jsonReader);
+                return Mapper.FromJson(Context, jsonReader);
             }
         }
 

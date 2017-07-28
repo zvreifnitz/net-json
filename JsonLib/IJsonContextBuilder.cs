@@ -17,11 +17,12 @@
 
 namespace com.github.zvreifnitz.JsonLib
 {
-    using System;
-
-    public interface IJsonSerializators : IDisposable
+    public interface IJsonContextBuilder
     {
-        IJsonSerializator<T> GetJsonSerializator<T>();
-        bool TryGetJsonSerializator<T>(out IJsonSerializator<T> serializator);
+        bool RegisterMapper<T>(IJsonMapper<T> mapper);
+        bool UnregisterMapper<T>();
+        bool RegisterBuilder<T>(T builder) where T : IRuntimeMapperBuilder;
+        bool UnregisterBuilder<T>() where T : IRuntimeMapperBuilder;
+        IJsonContext Build();
     }
 }

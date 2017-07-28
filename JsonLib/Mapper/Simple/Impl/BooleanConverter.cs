@@ -19,12 +19,12 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Simple.Impl
 {
     internal sealed class BooleanConverter : ConverterBase<bool>
     {
-        public override void ToJson(IJsonSerializators context, IJsonWriter writer, bool instance)
+        public override void ToJson(IJsonContext context, IJsonWriter writer, bool instance)
         {
             writer.WriteRaw(instance ? True : False);
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, out bool instance)
+        public override void FromJson(IJsonContext context, IJsonReader reader, out bool instance)
         {
             switch (reader.GetNextToken())
             {

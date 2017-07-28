@@ -22,7 +22,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Common
     using System.Reflection;
     using Helper;
 
-    internal abstract class MapperBuilderBase : IJsonMapperBuilder
+    internal abstract class MapperBuilderBase : IRuntimeMapperBuilder
     {
         private readonly MethodInfo _buildReflectionInvoke;
 
@@ -40,7 +40,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Common
             return true;
         }
 
-        public bool CanBuild<T>(IJsonSerializators context)
+        public bool CanBuild<T>(IJsonContext context)
         {
             var type = typeof(T);
             if (!IsRequestedTypeSupported(type))
@@ -55,7 +55,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Common
             return CheckAllGenericParameters(context, genericTypes);
         }
 
-        public IJsonMapper<T> Build<T>(IJsonSerializators context)
+        public IJsonMapper<T> Build<T>(IJsonContext context)
         {
             var type = typeof(T);
             if (!IsRequestedTypeSupported(type))
@@ -90,7 +90,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Common
             }
         }
 
-        private bool CheckAllGenericParameters(IJsonSerializators context, Type[] types)
+        private bool CheckAllGenericParameters(IJsonContext context, Type[] types)
         {
             foreach (var type in types)
             {
@@ -102,7 +102,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Common
             return true;
         }
 
-        private IJsonSerializator[] GetJsonSerializators(IJsonSerializators context, Type[] types)
+        private IJsonSerializator[] GetJsonSerializators(IJsonContext context, Type[] types)
         {
             IJsonSerializator[] result = new IJsonSerializator[types.Length];
             for (int i = 0; i < types.Length; i++)

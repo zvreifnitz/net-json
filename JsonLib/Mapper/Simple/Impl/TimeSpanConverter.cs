@@ -21,12 +21,12 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Simple.Impl
     
     internal sealed class TimeSpanConverter : ConverterBase<TimeSpan>
     {
-        public override void ToJson(IJsonSerializators context, IJsonWriter writer, TimeSpan instance)
+        public override void ToJson(IJsonContext context, IJsonWriter writer, TimeSpan instance)
         {
             writer.WriteRaw(instance.Ticks.ToString(DefaultCultureInfo));
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, out TimeSpan instance)
+        public override void FromJson(IJsonContext context, IJsonReader reader, out TimeSpan instance)
         {
             if (reader.GetNextToken() == JsonToken.Number &&
                 long.TryParse(reader.ReadValue(), IntegerNumberStyle, DefaultCultureInfo, out long parsed))

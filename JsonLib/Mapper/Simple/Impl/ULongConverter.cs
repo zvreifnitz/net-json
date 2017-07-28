@@ -19,12 +19,12 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Simple.Impl
 {
     internal sealed class ULongConverter : ConverterBase<ulong>
     {
-        public override void ToJson(IJsonSerializators context, IJsonWriter writer, ulong instance)
+        public override void ToJson(IJsonContext context, IJsonWriter writer, ulong instance)
         {
             writer.WriteRaw(instance.ToString(DefaultCultureInfo));
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, out ulong instance)
+        public override void FromJson(IJsonContext context, IJsonReader reader, out ulong instance)
         {
             if (reader.GetNextToken() != JsonToken.Number ||
                 !ulong.TryParse(reader.ReadValue(), IntegerNumberStyle, DefaultCultureInfo, out instance))

@@ -19,12 +19,12 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Simple.Impl
 {
     internal sealed class DecimalConverter : ConverterBase<decimal>
     {
-        public override void ToJson(IJsonSerializators context, IJsonWriter writer, decimal instance)
+        public override void ToJson(IJsonContext context, IJsonWriter writer, decimal instance)
         {
             writer.WriteRaw(instance.ToString(DefaultCultureInfo));
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, out decimal instance)
+        public override void FromJson(IJsonContext context, IJsonReader reader, out decimal instance)
         {
             if (reader.GetNextToken() != JsonToken.Number ||
                 !decimal.TryParse(reader.ReadValue(), FloatNumberStyle, DefaultCultureInfo, out instance))

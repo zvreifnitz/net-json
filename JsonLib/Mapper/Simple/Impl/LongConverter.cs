@@ -19,12 +19,12 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Simple.Impl
 {
     internal sealed class LongConverter : ConverterBase<long>
     {
-        public override void ToJson(IJsonSerializators context, IJsonWriter writer, long instance)
+        public override void ToJson(IJsonContext context, IJsonWriter writer, long instance)
         {
             writer.WriteRaw(instance.ToString(DefaultCultureInfo));
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, out long instance)
+        public override void FromJson(IJsonContext context, IJsonReader reader, out long instance)
         {
             if (reader.GetNextToken() != JsonToken.Number ||
                 !long.TryParse(reader.ReadValue(), IntegerNumberStyle, DefaultCultureInfo, out instance))

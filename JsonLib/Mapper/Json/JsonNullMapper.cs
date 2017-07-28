@@ -23,7 +23,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Json
 
     internal sealed class JsonNullMapper : JsonElementMapperBase<JsonNull>
     {
-        public override JsonNull FromJson(IJsonSerializators context, IJsonReader reader)
+        public override JsonNull FromJson(IJsonContext context, IJsonReader reader)
         {
             return reader.GetNextToken() == JsonToken.Null
                 ? JsonNull.Null

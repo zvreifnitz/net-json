@@ -19,13 +19,13 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Simple.Impl
 {
     internal sealed class CharConverter : ConverterBase<char>
     {
-        public override void ToJson(IJsonSerializators context, IJsonWriter writer, char instance)
+        public override void ToJson(IJsonContext context, IJsonWriter writer, char instance)
         {
             var charString = instance.ToString();
             writer.EncodeAndWrite(charString);
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, out char instance)
+        public override void FromJson(IJsonContext context, IJsonReader reader, out char instance)
         {
             var token = reader.GetNextToken();
             if (token == JsonToken.String)

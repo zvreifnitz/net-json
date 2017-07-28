@@ -22,12 +22,12 @@ namespace com.github.zvreifnitz.JsonLib
 
     public static class JsonLibFactory
     {
-        public static IJsonSerializatorsBuilder NewSerializatorsBuilder()
+        public static IJsonContextBuilder NewContextBuilder()
         {
-            return new JsonSerializatorsBuilder();
+            return new JsonContextBuilder();
         }
 
-        public static IObjectMapperBuilder<T> NewObjectMapperBuilder<T>()
+        public static IJsonMapperBuilder<T> NewMapperBuilder<T>()
         {
             return new ObjectMapperBuilder<T>();
         }

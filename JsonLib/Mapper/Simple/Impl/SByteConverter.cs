@@ -19,12 +19,12 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Simple.Impl
 {
     internal sealed class SByteConverter : ConverterBase<sbyte>
     {
-        public override void ToJson(IJsonSerializators context, IJsonWriter writer, sbyte instance)
+        public override void ToJson(IJsonContext context, IJsonWriter writer, sbyte instance)
         {
             writer.WriteRaw(instance.ToString(DefaultCultureInfo));
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, out sbyte instance)
+        public override void FromJson(IJsonContext context, IJsonReader reader, out sbyte instance)
         {
             if (reader.GetNextToken() != JsonToken.Number ||
                 !sbyte.TryParse(reader.ReadValue(), IntegerNumberStyle, DefaultCultureInfo, out instance))

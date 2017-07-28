@@ -22,12 +22,12 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Simple.Impl
     
     internal sealed class DateTimeConverter : ConverterBase<DateTime>
     {
-        public override void ToJson(IJsonSerializators context, IJsonWriter writer, DateTime instance)
+        public override void ToJson(IJsonContext context, IJsonWriter writer, DateTime instance)
         {
             writer.WriteRaw(instance.ToUnixMillis().ToString(DefaultCultureInfo));
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, out DateTime instance)
+        public override void FromJson(IJsonContext context, IJsonReader reader, out DateTime instance)
         {
             if (reader.GetNextToken() == JsonToken.Number &&
                 long.TryParse(reader.ReadValue(), IntegerNumberStyle, DefaultCultureInfo, out long parsed))

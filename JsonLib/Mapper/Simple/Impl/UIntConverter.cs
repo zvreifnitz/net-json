@@ -19,12 +19,12 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Simple.Impl
 {
     internal sealed class UIntConverter : ConverterBase<uint>
     {
-        public override void ToJson(IJsonSerializators context, IJsonWriter writer, uint instance)
+        public override void ToJson(IJsonContext context, IJsonWriter writer, uint instance)
         {
             writer.WriteRaw(instance.ToString(DefaultCultureInfo));
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, out uint instance)
+        public override void FromJson(IJsonContext context, IJsonReader reader, out uint instance)
         {
             if (reader.GetNextToken() != JsonToken.Number ||
                 !uint.TryParse(reader.ReadValue(), IntegerNumberStyle, DefaultCultureInfo, out instance))

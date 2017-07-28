@@ -42,7 +42,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Object
 
         public bool CanDeserialize => true;
 
-        public void Init(IJsonSerializators context)
+        public void Init(IJsonContext context)
         {
             foreach (var getter in _getters.Values)
             {
@@ -54,7 +54,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Object
             }
         }
 
-        public void ToJson(IJsonSerializators context, IJsonWriter writer, TClass instance)
+        public void ToJson(IJsonContext context, IJsonWriter writer, TClass instance)
         {
             if (instance == null)
             {
@@ -85,7 +85,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Object
             }
         }
 
-        public TClass FromJson(IJsonSerializators context, IJsonReader reader)
+        public TClass FromJson(IJsonContext context, IJsonReader reader)
         {
             var token = reader.GetNextToken();
             if (token == JsonToken.Null)
@@ -112,9 +112,9 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Object
                 {
                     reader.RepeatLastToken();
                 }
-                JsonSerializatorsHelper.ThrowIfNotMatch(reader, JsonToken.String);
+                JsonContextHelper.ThrowIfNotMatch(reader, JsonToken.String);
                 var key = reader.ReadValue();
-                JsonSerializatorsHelper.ThrowIfNotMatch(reader, JsonToken.Colon);
+                JsonContextHelper.ThrowIfNotMatch(reader, JsonToken.Colon);
                 if (_setters.TryGetValue(key, out IJsonGetterSetter<TClass> setter))
                 {
                     setter.FromJson(context, reader, result);

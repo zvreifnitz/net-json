@@ -24,6 +24,7 @@ namespace com.github.zvreifnitz.JsonLib
     {
         bool CanSerialize { get; }
         bool CanDeserialize { get; }
+        IRuntimeMapperBuilder Builder { get; }
     }
 
     public interface IJsonSerializator<T> : IJsonSerializator

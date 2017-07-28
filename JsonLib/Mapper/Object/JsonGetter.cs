@@ -36,18 +36,18 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Object
             return new JsonGetter<TClass, TProp>(ExpressionHelper.CreateGetter(property));
         }
 
-        public void Init(IJsonSerializators context)
+        public void Init(IJsonContext context)
         {
-            _jsonMapper = context.GetJsonSerializator<TProp>().Mapper;
+            _jsonMapper = context.GetSerializator<TProp>().Mapper;
         }
 
-        public void ToJson(IJsonSerializators context, IJsonWriter writer, TClass instance)
+        public void ToJson(IJsonContext context, IJsonWriter writer, TClass instance)
         {
             var value = _getter(instance);
             _jsonMapper.ToJson(context, writer, value);
         }
 
-        public void FromJson(IJsonSerializators context, IJsonReader reader, TClass instance)
+        public void FromJson(IJsonContext context, IJsonReader reader, TClass instance)
         {
         }
     }

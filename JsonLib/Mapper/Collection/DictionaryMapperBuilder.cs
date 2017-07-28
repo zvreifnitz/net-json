@@ -42,9 +42,9 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
             where TDictionaryImpl : TDictionary, new()
         {
             protected abstract void ToJsonItem(
-                IJsonSerializators context, IJsonWriter writer, KeyValuePair<TKey, TValue> instance);
+                IJsonContext context, IJsonWriter writer, KeyValuePair<TKey, TValue> instance);
 
-            protected abstract KeyValuePair<TKey, TValue> FromJsonItem(IJsonSerializators context, IJsonReader reader);
+            protected abstract KeyValuePair<TKey, TValue> FromJsonItem(IJsonContext context, IJsonReader reader);
 
             private readonly IJsonMapper<TKey> _keyMapper;
             private readonly IJsonMapper<TValue> _valueMapper;
@@ -71,11 +71,11 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
 
             public bool CanDeserialize => true;
 
-            public void Init(IJsonSerializators context)
+            public void Init(IJsonContext context)
             {
             }
 
-            public void ToJson(IJsonSerializators context, IJsonWriter writer, TDictionary instance)
+            public void ToJson(IJsonContext context, IJsonWriter writer, TDictionary instance)
             {
                 if (instance == null)
                 {
@@ -104,7 +104,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
                 }
             }
 
-            public TDictionary FromJson(IJsonSerializators context, IJsonReader reader)
+            public TDictionary FromJson(IJsonContext context, IJsonReader reader)
             {
                 JsonToken token = reader.GetNextToken();
                 if (token == JsonToken.Null)
@@ -137,7 +137,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
                 return result;
             }
 
-            protected void ToJsonKey(IJsonSerializators context, IJsonWriter writer, TKey instance)
+            protected void ToJsonKey(IJsonContext context, IJsonWriter writer, TKey instance)
             {
                 if (_keyMapper.CanSerialize)
                 {
@@ -149,7 +149,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
                 }
             }
 
-            protected void ToJsonValue(IJsonSerializators context, IJsonWriter writer, TValue instance)
+            protected void ToJsonValue(IJsonContext context, IJsonWriter writer, TValue instance)
             {
                 if (_valueMapper.CanSerialize)
                 {
@@ -161,14 +161,14 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
                 }
             }
 
-            protected TKey FromJsonKey(IJsonSerializators context, IJsonReader reader)
+            protected TKey FromJsonKey(IJsonContext context, IJsonReader reader)
             {
                 return _keyMapper.CanDeserialize
                     ? _keyMapper.FromJson(context, reader)
                     : default(TKey);
             }
 
-            protected TValue FromJsonValue(IJsonSerializators context, IJsonReader reader)
+            protected TValue FromJsonValue(IJsonContext context, IJsonReader reader)
             {
                 return _valueMapper.CanDeserialize
                     ? _valueMapper.FromJson(context, reader)
@@ -190,7 +190,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
             {
             }
 
-            protected override void ToJsonItem(IJsonSerializators context, IJsonWriter writer,
+            protected override void ToJsonItem(IJsonContext context, IJsonWriter writer,
                 KeyValuePair<TKey, TValue> instance)
             {
                 ToJsonKey(context, writer, instance.Key);
@@ -198,10 +198,10 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
                 ToJsonValue(context, writer, instance.Value);
             }
 
-            protected override KeyValuePair<TKey, TValue> FromJsonItem(IJsonSerializators context, IJsonReader reader)
+            protected override KeyValuePair<TKey, TValue> FromJsonItem(IJsonContext context, IJsonReader reader)
             {
                 TKey key = FromJsonKey(context, reader);
-                JsonSerializatorsHelper.ThrowIfNotMatch(reader, JsonToken.Colon);
+                JsonContextHelper.ThrowIfNotMatch(reader, JsonToken.Colon);
                 TValue value = FromJsonValue(context, reader);
                 return new KeyValuePair<TKey, TValue>(key, value);
             }
@@ -221,7 +221,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
             {
             }
 
-            protected override void ToJsonItem(IJsonSerializators context, IJsonWriter writer,
+            protected override void ToJsonItem(IJsonContext context, IJsonWriter writer,
                 KeyValuePair<TKey, TValue> instance)
             {
                 writer.WriteRaw(JsonLiterals.ArrayStart);
@@ -231,13 +231,13 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
                 writer.WriteRaw(JsonLiterals.ArrayEnd);
             }
 
-            protected override KeyValuePair<TKey, TValue> FromJsonItem(IJsonSerializators context, IJsonReader reader)
+            protected override KeyValuePair<TKey, TValue> FromJsonItem(IJsonContext context, IJsonReader reader)
             {
-                JsonSerializatorsHelper.ThrowIfNotMatch(reader, JsonToken.ArrayStart);
+                JsonContextHelper.ThrowIfNotMatch(reader, JsonToken.ArrayStart);
                 TKey key = FromJsonKey(context, reader);
-                JsonSerializatorsHelper.ThrowIfNotMatch(reader, JsonToken.Comma);
+                JsonContextHelper.ThrowIfNotMatch(reader, JsonToken.Comma);
                 TValue value = FromJsonValue(context, reader);
-                JsonSerializatorsHelper.ThrowIfNotMatch(reader, JsonToken.ArrayEnd);
+                JsonContextHelper.ThrowIfNotMatch(reader, JsonToken.ArrayEnd);
                 return new KeyValuePair<TKey, TValue>(key, value);
             }
         }

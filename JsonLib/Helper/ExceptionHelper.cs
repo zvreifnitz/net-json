@@ -15,13 +15,12 @@
  *
  */
 
-using com.github.zvreifnitz.JsonLib.Json;
-
 namespace com.github.zvreifnitz.JsonLib.Helper
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Json;
 
     public static class ExceptionHelper
     {
@@ -47,13 +46,13 @@ namespace com.github.zvreifnitz.JsonLib.Helper
                 string.Format("Mapper for type '{0}' is not registered", typeof(T).FullName));
         }
 
-        public static IJsonMapperBuilder ThrowNoSuitableBuilderException<T>()
+        public static IRuntimeMapperBuilder ThrowNoSuitableBuilderException<T>()
         {
             throw new JsonException(JsonExceptionType.MapperNotRegistered,
                 string.Format("Mapper for type '{0}' is not registered", typeof(T).FullName));
         }
 
-        public static IJsonMapperBuilder ThrowManyBuildersException<T>(List<IJsonMapperBuilder> builders)
+        public static IRuntimeMapperBuilder ThrowManyBuildersException<T>(List<IRuntimeMapperBuilder> builders)
         {
             var builderNames = string.Join(", ", builders.Select(b => b.GetType().FullName));
             throw new JsonException(JsonExceptionType.TooManyBuilders, string.Format(
@@ -69,6 +68,11 @@ namespace com.github.zvreifnitz.JsonLib.Helper
         public static T ThrowUnexpectedException<T>(Exception exc)
         {
             throw new JsonException(JsonExceptionType.Unexpected, "Unexpected exception", exc);
+        }
+        
+        public static T ThrowInvalidPropertyExpressionException<T>()
+        {
+            throw new JsonException(JsonExceptionType.InvalidPropertyExpression, "Invalid property expression");
         }
     }
 }

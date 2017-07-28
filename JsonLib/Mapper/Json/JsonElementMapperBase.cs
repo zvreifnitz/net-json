@@ -30,14 +30,14 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Json
 
         public bool CanDeserialize => true;
 
-        public void Init(IJsonSerializators context)
+        public void Init(IJsonContext context)
         {
-            JsonElementMapper = context.GetJsonSerializator<JsonElement>().Mapper;
-            JsonArrayMapper = context.GetJsonSerializator<JsonArray>().Mapper;
-            JsonObjectMapper = context.GetJsonSerializator<JsonObject>().Mapper;
+            JsonElementMapper = context.GetSerializator<JsonElement>().Mapper;
+            JsonArrayMapper = context.GetSerializator<JsonArray>().Mapper;
+            JsonObjectMapper = context.GetSerializator<JsonObject>().Mapper;
         }
 
-        public void ToJson(IJsonSerializators context, IJsonWriter writer, T instance)
+        public void ToJson(IJsonContext context, IJsonWriter writer, T instance)
         {
             if (instance == null)
             {
@@ -49,6 +49,6 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Json
             }
         }
 
-        public abstract T FromJson(IJsonSerializators context, IJsonReader reader);
+        public abstract T FromJson(IJsonContext context, IJsonReader reader);
     }
 }

@@ -17,9 +17,32 @@
 
 namespace com.github.zvreifnitz.JsonLib
 {
-    public interface IJsonMapperBuilder
+    using System;
+    using System.Linq.Expressions;
+    
+    public interface IJsonMapperBuilder<TClass>
     {
-        bool CanBuild<T>(IJsonSerializators context);
-        IJsonMapper<T> Build<T>(IJsonSerializators context);
+        IJsonMapperBuilder<TClass> NewInstanceProvider(
+            Func<TClass> instanceProvider);
+
+        IJsonMapperBuilder<TClass> AddProperty<TProp>(
+            Expression<Func<TClass, TProp>> property);
+
+        IJsonMapperBuilder<TClass> AddProperty<TProp>(
+            Expression<Func<TClass, TProp>> property, string jsonPropName);
+
+        IJsonMapperBuilder<TClass> AddReadOnlyProperty<TProp>(
+            Expression<Func<TClass, TProp>> property);
+
+        IJsonMapperBuilder<TClass> AddReadOnlyProperty<TProp>(
+            Expression<Func<TClass, TProp>> property, string jsonPropName);
+
+        IJsonMapperBuilder<TClass> AddWriteOnlyProperty<TProp>(
+            Expression<Func<TClass, TProp>> property);
+
+        IJsonMapperBuilder<TClass> AddWriteOnlyProperty<TProp>(
+            Expression<Func<TClass, TProp>> property, string jsonPropName);
+
+        IJsonMapper<TClass> Build();
     }
 }

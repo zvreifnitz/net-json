@@ -22,7 +22,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Json
 
     internal sealed class JsonArrayMapper : JsonElementMapperBase<JsonArray>
     {
-        public override JsonArray FromJson(IJsonSerializators context, IJsonReader reader)
+        public override JsonArray FromJson(IJsonContext context, IJsonReader reader)
         {
             var token = reader.GetNextToken();
             if (token == JsonToken.Null)

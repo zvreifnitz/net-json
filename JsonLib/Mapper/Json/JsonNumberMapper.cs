@@ -24,7 +24,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Json
 
     internal sealed class JsonNumberMapper : JsonElementMapperBase<JsonNumber>
     {
-        public override JsonNumber FromJson(IJsonSerializators context, IJsonReader reader)
+        public override JsonNumber FromJson(IJsonContext context, IJsonReader reader)
         {
             switch (reader.GetNextToken())
             {

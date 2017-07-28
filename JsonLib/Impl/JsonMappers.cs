@@ -55,7 +55,7 @@ namespace com.github.zvreifnitz.JsonLib.Impl
         private static readonly IJsonMapper<ulong> ULongMapper = new JsonSimpleMapper<ulong>(new ULongConverter());
         private static readonly IJsonMapper<ushort> UShortMapper = new JsonSimpleMapper<ushort>(new UShortConverter());
         
-        internal static void RegisterDefaultMappers(this JsonSerializatorsBuilder context)
+        internal static void RegisterDefaultMappers(this JsonContextBuilder context)
         {
             context.RegisterMapper(JsonElementMapper);
             context.RegisterMapper(JsonArrayMapper);
@@ -85,37 +85,37 @@ namespace com.github.zvreifnitz.JsonLib.Impl
             context.RegisterMapper(UShortMapper);
         }
 
-        private static readonly IJsonMapperBuilder ArrayMapperBuilder = new ArrayMapperBuilder();
-        private static readonly IJsonMapperBuilder NullableMapperBuilder = new NullableMapperBuilder();
-        private static readonly IJsonMapperBuilder ItfListMapperBuilder = new ItfListMapperBuilder();
-        private static readonly IJsonMapperBuilder ListMapperBuilder = new ListMapperBuilder();
-        private static readonly IJsonMapperBuilder ItfSetMapperBuilder = new ItfSetMapperBuilder();
-        private static readonly IJsonMapperBuilder HashSetMapperBuilder = new HashSetMapperBuilder();
-        private static readonly IJsonMapperBuilder SortedSetMapperBuilder = new SortedSetMapperBuilder();
-        private static readonly IJsonMapperBuilder ItfDictionaryMapperBuilder = new ItfDictionaryMapperBuilder();
-        private static readonly IJsonMapperBuilder DictionaryMapperBuilder = new DictionaryMapperBuilder();
-        private static readonly IJsonMapperBuilder ConcurrentDictionaryMapperBuilder = new ConcurrentDictionaryMapperBuilder();
-        private static readonly IJsonMapperBuilder SortedDictionaryMapperBuilder = new SortedDictionaryMapperBuilder();
-        private static readonly IJsonMapperBuilder SortedListMapperBuilder = new SortedListMapperBuilder();
-        private static readonly IJsonMapperBuilder CollectionMapperBuilder = new CollectionMapperBuilder();
-        private static readonly IJsonMapperBuilder ObservableCollectionMapperBuilder = new ObservableCollectionMapperBuilder();
+        private static readonly IRuntimeMapperBuilder ArrayMapperBuilder = new ArrayMapperBuilder();
+        private static readonly IRuntimeMapperBuilder NullableMapperBuilder = new NullableMapperBuilder();
+        private static readonly IRuntimeMapperBuilder ItfListMapperBuilder = new ItfListMapperBuilder();
+        private static readonly IRuntimeMapperBuilder ListMapperBuilder = new ListMapperBuilder();
+        private static readonly IRuntimeMapperBuilder ItfSetMapperBuilder = new ItfSetMapperBuilder();
+        private static readonly IRuntimeMapperBuilder HashSetMapperBuilder = new HashSetMapperBuilder();
+        private static readonly IRuntimeMapperBuilder SortedSetMapperBuilder = new SortedSetMapperBuilder();
+        private static readonly IRuntimeMapperBuilder ItfDictionaryMapperBuilder = new ItfDictionaryMapperBuilder();
+        private static readonly IRuntimeMapperBuilder DictionaryMapperBuilder = new DictionaryMapperBuilder();
+        private static readonly IRuntimeMapperBuilder ConcurrentDictionaryMapperBuilder = new ConcurrentDictionaryMapperBuilder();
+        private static readonly IRuntimeMapperBuilder SortedDictionaryMapperBuilder = new SortedDictionaryMapperBuilder();
+        private static readonly IRuntimeMapperBuilder SortedListMapperBuilder = new SortedListMapperBuilder();
+        private static readonly IRuntimeMapperBuilder CollectionMapperBuilder = new CollectionMapperBuilder();
+        private static readonly IRuntimeMapperBuilder ObservableCollectionMapperBuilder = new ObservableCollectionMapperBuilder();
         
-        internal static void RegisterDefaultBuilders(this JsonSerializatorsBuilder context)
+        internal static void RegisterDefaultBuilders(this JsonContextBuilder context)
         {
-            context.RegisterMapperBulder(ArrayMapperBuilder);
-            context.RegisterMapperBulder(NullableMapperBuilder);
-            context.RegisterMapperBulder(ItfListMapperBuilder);
-            context.RegisterMapperBulder(ListMapperBuilder);
-            context.RegisterMapperBulder(ItfSetMapperBuilder);
-            context.RegisterMapperBulder(HashSetMapperBuilder);
-            context.RegisterMapperBulder(SortedSetMapperBuilder);
-            context.RegisterMapperBulder(ItfDictionaryMapperBuilder);
-            context.RegisterMapperBulder(DictionaryMapperBuilder);
-            context.RegisterMapperBulder(ConcurrentDictionaryMapperBuilder);
-            context.RegisterMapperBulder(SortedDictionaryMapperBuilder);
-            context.RegisterMapperBulder(SortedListMapperBuilder);
-            context.RegisterMapperBulder(CollectionMapperBuilder);
-            context.RegisterMapperBulder(ObservableCollectionMapperBuilder);
+            context.RegisterBuilder(ArrayMapperBuilder);
+            context.RegisterBuilder(NullableMapperBuilder);
+            context.RegisterBuilder(ItfListMapperBuilder);
+            context.RegisterBuilder(ListMapperBuilder);
+            context.RegisterBuilder(ItfSetMapperBuilder);
+            context.RegisterBuilder(HashSetMapperBuilder);
+            context.RegisterBuilder(SortedSetMapperBuilder);
+            context.RegisterBuilder(ItfDictionaryMapperBuilder);
+            context.RegisterBuilder(DictionaryMapperBuilder);
+            context.RegisterBuilder(ConcurrentDictionaryMapperBuilder);
+            context.RegisterBuilder(SortedDictionaryMapperBuilder);
+            context.RegisterBuilder(SortedListMapperBuilder);
+            context.RegisterBuilder(CollectionMapperBuilder);
+            context.RegisterBuilder(ObservableCollectionMapperBuilder);
         }
     }
 }

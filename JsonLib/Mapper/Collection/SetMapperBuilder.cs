@@ -48,11 +48,11 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
 
             public bool CanDeserialize => true;
 
-            public void Init(IJsonSerializators context)
+            public void Init(IJsonContext context)
             {
             }
 
-            public void ToJson(IJsonSerializators context, IJsonWriter writer, TSet instance)
+            public void ToJson(IJsonContext context, IJsonWriter writer, TSet instance)
             {
                 if (instance == null)
                 {
@@ -81,7 +81,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
                 }
             }
 
-            private void ToJsonItem(IJsonSerializators context, IJsonWriter writer, TItem instance)
+            private void ToJsonItem(IJsonContext context, IJsonWriter writer, TItem instance)
             {
                 if (_mapper.CanSerialize)
                 {
@@ -93,7 +93,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
                 }
             }
 
-            public TSet FromJson(IJsonSerializators context, IJsonReader reader)
+            public TSet FromJson(IJsonContext context, IJsonReader reader)
             {
                 JsonToken token = reader.GetNextToken();
                 if (token == JsonToken.Null)
@@ -125,7 +125,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
                 return result;
             }
 
-            private TItem FromJsonItem(IJsonSerializators context, IJsonReader reader)
+            private TItem FromJsonItem(IJsonContext context, IJsonReader reader)
             {
                 return _mapper.CanDeserialize
                     ? _mapper.FromJson(context, reader)

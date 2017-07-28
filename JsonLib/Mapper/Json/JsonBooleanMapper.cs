@@ -22,7 +22,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Json
 
     internal sealed class JsonBooleanMapper : JsonElementMapperBase<JsonBoolean>
     {
-        public override JsonBoolean FromJson(IJsonSerializators context, IJsonReader reader)
+        public override JsonBoolean FromJson(IJsonContext context, IJsonReader reader)
         {
             switch (reader.GetNextToken())
             {

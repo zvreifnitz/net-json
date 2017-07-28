@@ -33,7 +33,7 @@ namespace JsonLibExample
 
         private const string JsonValue = "{\"IntValue\":1,\"GuidValue\":\"a50229d4-220d-481e-969e-772f3797ae85\",\"StringValue\":\"ABC\"}";
 
-        public override void Run(IJsonSerializators ctx)
+        public override void Run(IJsonContext ctx)
         {  
             long serNewtonsoftJson = 0L;
             string serNewtonsoftJsonExample = null;
@@ -108,15 +108,15 @@ namespace JsonLibExample
             return DeserializeTime(deserializer, JsonValue);
         }
 
-        private Tuple<long, string> SerializeTimeJsonLib(IJsonSerializators ctx)
+        private Tuple<long, string> SerializeTimeJsonLib(IJsonContext ctx)
         {
-            SerializeDelegate<SimpleObject> serializer = ctx.GetJsonSerializator<SimpleObject>().ToJson;
+            SerializeDelegate<SimpleObject> serializer = ctx.GetSerializator<SimpleObject>().ToJson;
             return SerializeTime(serializer, CleanValue);
         }
 
-        private Tuple<long, SimpleObject> DeserializeTimeJsonLib(IJsonSerializators ctx)
+        private Tuple<long, SimpleObject> DeserializeTimeJsonLib(IJsonContext ctx)
         {
-            DeserializeDelegate<SimpleObject> deserializer = ctx.GetJsonSerializator<SimpleObject>().FromJson;
+            DeserializeDelegate<SimpleObject> deserializer = ctx.GetSerializator<SimpleObject>().FromJson;
             return DeserializeTime(deserializer, JsonValue);
         }
     }

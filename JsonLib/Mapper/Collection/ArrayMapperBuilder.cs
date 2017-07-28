@@ -58,16 +58,16 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Collection
 
             public bool CanDeserialize => true;
 
-            public void Init(IJsonSerializators context)
+            public void Init(IJsonContext context)
             {
             }
 
-            public void ToJson(IJsonSerializators context, IJsonWriter writer, T[] instance)
+            public void ToJson(IJsonContext context, IJsonWriter writer, T[] instance)
             {
                 _mapper.ToJson(context, writer, instance == null ? null : new List<T>(instance));
             }
 
-            public T[] FromJson(IJsonSerializators context, IJsonReader reader)
+            public T[] FromJson(IJsonContext context, IJsonReader reader)
             {
                 var result = _mapper.FromJson(context, reader);
                 return result?.ToArray();

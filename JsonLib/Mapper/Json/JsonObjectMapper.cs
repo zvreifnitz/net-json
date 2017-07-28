@@ -22,7 +22,7 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Json
 
     internal sealed class JsonObjectMapper : JsonElementMapperBase<JsonObject>
     {
-        public override JsonObject FromJson(IJsonSerializators context, IJsonReader reader)
+        public override JsonObject FromJson(IJsonContext context, IJsonReader reader)
         {
             var token = reader.GetNextToken();
             if (token == JsonToken.Null)
@@ -50,9 +50,9 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Json
                 {
                     reader.RepeatLastToken();
                 }
-                JsonSerializatorsHelper.ThrowIfNotMatch(reader, JsonToken.String);
+                JsonContextHelper.ThrowIfNotMatch(reader, JsonToken.String);
                 var key = reader.ReadValue();
-                JsonSerializatorsHelper.ThrowIfNotMatch(reader, JsonToken.Colon);
+                JsonContextHelper.ThrowIfNotMatch(reader, JsonToken.Colon);
                 var value = JsonElementMapper.FromJson(context, reader);
                 result.GetObjectMembers().Add(key, value);
             }

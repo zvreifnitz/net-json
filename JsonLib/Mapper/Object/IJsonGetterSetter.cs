@@ -19,8 +19,8 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Object
 {
     internal interface IJsonGetterSetter<in TClass>
     {
-        void Init(IJsonSerializators context);
-        void ToJson(IJsonSerializators context, IJsonWriter writer, TClass instance);
-        void FromJson(IJsonSerializators context, IJsonReader reader, TClass instance);
+        void Init(IJsonContext context);
+        void ToJson(IJsonContext context, IJsonWriter writer, TClass instance);
+        void FromJson(IJsonContext context, IJsonReader reader, TClass instance);
     }
 }

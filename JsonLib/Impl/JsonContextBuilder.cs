@@ -17,11 +17,11 @@
 
 namespace com.github.zvreifnitz.JsonLib.Impl
 {
-    internal sealed class JsonSerializatorsBuilder : IJsonSerializatorsBuilder
+    internal sealed class JsonContextBuilder : IJsonContextBuilder
     {
-        private readonly JsonSerializators _serializators = new JsonSerializators();
+        private readonly JsonContext _context = new JsonContext();
 
-        public JsonSerializatorsBuilder()
+        public JsonContextBuilder()
         {
             this.RegisterDefaultMappers();
             this.RegisterDefaultBuilders();
@@ -29,28 +29,28 @@ namespace com.github.zvreifnitz.JsonLib.Impl
 
         public bool RegisterMapper<T>(IJsonMapper<T> mapper)
         {
-            return _serializators.RegisterMapper(mapper);
+            return _context.RegisterMapper(mapper);
         }
 
         public bool UnregisterMapper<T>()
         {
-            return _serializators.UnregisterMapper<T>();
+            return _context.UnregisterMapper<T>();
         }
 
-        public bool RegisterMapperBulder<T>(T builder) where T : IJsonMapperBuilder
+        public bool RegisterBuilder<T>(T builder) where T : IRuntimeMapperBuilder
         {
-            return _serializators.RegisterMapperBulder(builder);
+            return _context.RegisterMapperBulder(builder);
         }
 
-        public bool UnregisterMapperBulder<T>() where T : IJsonMapperBuilder
+        public bool UnregisterBuilder<T>() where T : IRuntimeMapperBuilder
         {
-            return _serializators.UnregisterMapperBulder<T>();
+            return _context.UnregisterMapperBulder<T>();
         }
 
-        public IJsonSerializators Build()
+        public IJsonContext Build()
         {
-            _serializators.Freeze();
-            return _serializators;
+            _context.Freeze();
+            return _context;
         }
     }
 }

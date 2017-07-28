@@ -15,16 +15,15 @@
  *
  */
 
-using com.github.zvreifnitz.JsonLib.Parser;
-
 namespace com.github.zvreifnitz.JsonLib.Mapper.Object
 {
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using Helper;
+    using Parser;
 
-    internal sealed class ObjectMapperBuilder<TClass> : IObjectMapperBuilder<TClass>
+    internal sealed class ObjectMapperBuilder<TClass> : IJsonMapperBuilder<TClass>
     {
         private readonly Dictionary<string, IJsonGetterSetter<TClass>> _getters =
             new Dictionary<string, IJsonGetterSetter<TClass>>();
@@ -33,21 +32,21 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Object
         
         private Func<TClass> _instanceProvider;
 
-        public IObjectMapperBuilder<TClass> NewInstanceProvider(
+        public IJsonMapperBuilder<TClass> NewInstanceProvider(
             Func<TClass> instanceProvider)
         {
             _instanceProvider = instanceProvider;
             return this;
         }
 
-        public IObjectMapperBuilder<TClass> AddProperty<TProp>(
+        public IJsonMapperBuilder<TClass> AddProperty<TProp>(
             Expression<Func<TClass, TProp>> property)
         {
             AddProperty(property, ExpressionHelper.GetPropertyName(property));
             return this;
         }
 
-        public IObjectMapperBuilder<TClass> AddProperty<TProp>(
+        public IJsonMapperBuilder<TClass> AddProperty<TProp>(
             Expression<Func<TClass, TProp>> property, string jsonPropName)
         {
             _getters.Add(jsonPropName.EncodeToJsonString(), JsonGetter<TClass, TProp>.Build(property));
@@ -55,28 +54,28 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Object
             return this;
         }
 
-        public IObjectMapperBuilder<TClass> AddReadOnlyProperty<TProp>(
+        public IJsonMapperBuilder<TClass> AddReadOnlyProperty<TProp>(
             Expression<Func<TClass, TProp>> property)
         {
             AddReadOnlyProperty(property, ExpressionHelper.GetPropertyName(property));
             return this;
         }
 
-        public IObjectMapperBuilder<TClass> AddReadOnlyProperty<TProp>(
+        public IJsonMapperBuilder<TClass> AddReadOnlyProperty<TProp>(
             Expression<Func<TClass, TProp>> property, string jsonPropName)
         {
             _getters.Add(jsonPropName.EncodeToJsonString(), JsonGetter<TClass, TProp>.Build(property));
             return this;
         }
 
-        public IObjectMapperBuilder<TClass> AddWriteOnlyProperty<TProp>(
+        public IJsonMapperBuilder<TClass> AddWriteOnlyProperty<TProp>(
             Expression<Func<TClass, TProp>> property)
         {
             AddWriteOnlyProperty(property, ExpressionHelper.GetPropertyName(property));
             return this;
         }
 
-        public IObjectMapperBuilder<TClass> AddWriteOnlyProperty<TProp>(
+        public IJsonMapperBuilder<TClass> AddWriteOnlyProperty<TProp>(
             Expression<Func<TClass, TProp>> property, string jsonPropName)
         {
             _setters.Add(jsonPropName, JsonSetter<TClass, TProp>.Build(property));

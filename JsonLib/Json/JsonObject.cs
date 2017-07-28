@@ -32,7 +32,7 @@ namespace com.github.zvreifnitz.JsonLib.Json
         }
 
         internal override void ToJson(
-            IJsonSerializators context, IJsonWriter writer, IJsonMapper<JsonElement> elMapper)
+            IJsonContext context, IJsonWriter writer, IJsonMapper<JsonElement> elMapper)
         {
             writer.WriteRaw(JsonLiterals.ObjectStart);
             if (_objectMembers.Count > 0)

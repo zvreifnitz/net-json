@@ -15,11 +15,10 @@
  *
  */
 
-namespace com.github.zvreifnitz.JsonLib.Mapper.Simple
+namespace JsonLibExample
 {
-    internal interface ISimpleConverter<T>
+    public class HeavyObject
     {
-        void ToJson(IJsonContext context, IJsonWriter writer, T instance);
-        void FromJson(IJsonContext context, IJsonReader reader, out T instance);
+        
     }
 }

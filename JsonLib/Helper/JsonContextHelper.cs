@@ -20,10 +20,10 @@ namespace com.github.zvreifnitz.JsonLib.Helper
     using System;
     using System.Reflection;
 
-    internal static class JsonSerializatorsHelper
+    internal static class JsonContextHelper
     {
         private static readonly MethodInfo GetJsonSerializatorMethod =
-            typeof(IJsonSerializators).GetRuntimeMethod("GetJsonSerializator", new Type[0]);
+            typeof(IJsonContext).GetRuntimeMethod("GetJsonSerializator", new Type[0]);
 
         public static void ThrowIfNotMatch(IJsonReader reader, JsonToken token)
         {
@@ -32,13 +32,13 @@ namespace com.github.zvreifnitz.JsonLib.Helper
                 ExceptionHelper.ThrowInvalidJsonException<object>();
             }
         }
-        
-        public static IJsonSerializator GetJsonSerializatorReflection(this IJsonSerializators serializators, Type type)
+
+        public static IJsonSerializator GetJsonSerializatorReflection(this IJsonContext context, Type type)
         {
             try
             {
                 MethodInfo generic = GetJsonSerializatorMethod.MakeGenericMethod(type);
-                object result = generic.Invoke(serializators, null);
+                object result = generic.Invoke(context, null);
                 return (IJsonSerializator)result;
             }
             catch (JsonException exc)

@@ -17,12 +17,9 @@
 
 namespace com.github.zvreifnitz.JsonLib
 {
-    public interface IJsonSerializatorsBuilder
+    public interface IRuntimeMapperBuilder
     {
-        bool RegisterMapper<T>(IJsonMapper<T> mapper);
-        bool UnregisterMapper<T>();
-        bool RegisterMapperBulder<T>(T builder) where T : IJsonMapperBuilder;
-        bool UnregisterMapperBulder<T>() where T : IJsonMapperBuilder;
-        IJsonSerializators Build();
+        bool CanBuild<T>(IJsonContext context);
+        IJsonMapper<T> Build<T>(IJsonContext context);
     }
 }

@@ -19,12 +19,12 @@ namespace com.github.zvreifnitz.JsonLib.Mapper.Simple.Impl
 {
     internal sealed class DoubleConverter : ConverterBase<double>
     {
-        public override void ToJson(IJsonSerializators context, IJsonWriter writer, double instance)
+        public override void ToJson(IJsonContext context, IJsonWriter writer, double instance)
         {
             writer.WriteRaw(instance.ToString(DefaultCultureInfo));
         }
 
-        public override void FromJson(IJsonSerializators context, IJsonReader reader, out double instance)
+        public override void FromJson(IJsonContext context, IJsonReader reader, out double instance)
         {
             if (reader.GetNextToken() != JsonToken.Number ||
                 !double.TryParse(reader.ReadValue(), FloatNumberStyle, DefaultCultureInfo, out instance))

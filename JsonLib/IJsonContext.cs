@@ -15,24 +15,13 @@
  *
  */
 
-namespace com.github.zvreifnitz.JsonLib.Mapper.Simple.Impl
+namespace com.github.zvreifnitz.JsonLib
 {
     using System;
-    
-    internal sealed class GuidConverter : ConverterBase<Guid>
-    {
-        public override void ToJson(IJsonContext context, IJsonWriter writer, Guid instance)
-        {
-            writer.EncodeAndWrite(instance.ToString("D"));
-        }
 
-        public override void FromJson(IJsonContext context, IJsonReader reader, out Guid instance)
-        {
-            if (reader.GetNextToken() != JsonToken.String ||
-                !Guid.TryParse(reader.ReadValue(), out instance))
-            {
-                ThrowInvalidJsonException<object>();
-            }
-        }
+    public interface IJsonContext : IDisposable
+    {
+        IJsonSerializator<T> GetSerializator<T>();
+        bool TryGetSerializator<T>(out IJsonSerializator<T> serializator);
     }
 }
